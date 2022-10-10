@@ -4,12 +4,12 @@
 # Code is Apache-2.0 and docs are CC-BY-4.0
 
 from transactions.common.transaction import Transaction  # noqa
-# from transactions.types.elections.validator_election import ValidatorElection  # noqa
-# from transactions.types.elections.vote import Vote  # noqa
-# from transactions.types.elections.chain_migration_election import ChainMigrationElection
+from transactions.types.elections.validator_election import ValidatorElection  # noqa
+from transactions.types.elections.vote import Vote  # noqa
+from transactions.types.elections.chain_migration_election import ChainMigrationElection
 
 Transaction.register_type(Transaction.CREATE, Transaction)
 Transaction.register_type(Transaction.TRANSFER, Transaction)
-# Transaction.register_type(ValidatorElection.OPERATION, ValidatorElection)
-# Transaction.register_type(ChainMigrationElection.OPERATION, ChainMigrationElection)
-# Transaction.register_type(Vote.OPERATION, Vote)
+Transaction.register_type(ValidatorElection.OPERATION, ValidatorElection)
+Transaction.register_type(ChainMigrationElection.OPERATION, ChainMigrationElection)
+Transaction.register_type(Vote.OPERATION, Vote)
