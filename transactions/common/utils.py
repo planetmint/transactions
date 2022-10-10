@@ -8,10 +8,11 @@ import base64
 import time
 import re
 import rapidjson
+from typing import Callable
 
 # from planetmint.config import Config
 from transactions.common.exceptions import ValidationError
-from cryptoconditions import ThresholdSha256, Ed25519Sha256, ZenroomSha256
+from cryptoconditions import ThresholdSha256, Ed25519Sha256, ZenroomSha256, Fulfillment
 from transactions.common.exceptions import ThresholdTooDeep
 from cryptoconditions.exceptions import UnsupportedTypeError
 
@@ -49,7 +50,7 @@ VALID_LANGUAGES = (
     "tr",
 )
 
-def gen_timestamp():
+def gen_timestamp() -> str:
     """The Unix time, rounded to the nearest second.
     See https://en.wikipedia.org/wiki/Unix_time
 
@@ -59,7 +60,7 @@ def gen_timestamp():
     return str(round(time.time()))
 
 
-def serialize(data):
+def serialize(data: dict) -> str:
     """Serialize a dict into a JSON formatted string.
 
     This function enforces rules like the separator and order of keys.
@@ -80,7 +81,7 @@ def serialize(data):
     return rapidjson.dumps(data, skipkeys=False, ensure_ascii=False, sort_keys=True)
 
 
-def deserialize(data):
+def deserialize(data: str) -> dict:
     """Deserialize a JSON formatted string into a dict.
 
     Args:
@@ -93,7 +94,7 @@ def deserialize(data):
     return rapidjson.loads(data)
 
 
-def validate_txn_obj(obj_name, obj, key, validation_fun):
+def validate_txn_obj(obj_name: str, obj: dict, key: str, validation_fun: Callable) -> None:
     """Validate value of `key` in `obj` using `validation_fun`.
 
     Args:
@@ -119,7 +120,7 @@ def validate_txn_obj(obj_name, obj, key, validation_fun):
             validate_all_items_in_list(obj_name, data, validation_fun)
 
 
-def validate_all_items_in_list(obj_name, data, validation_fun):
+def validate_all_items_in_list(obj_name: str, data: list, validation_fun: Callable) -> None:
     for item in data:
         if isinstance(item, dict):
             validate_all_keys_in_obj(obj_name, item, validation_fun)
@@ -127,7 +128,7 @@ def validate_all_items_in_list(obj_name, data, validation_fun):
             validate_all_items_in_list(obj_name, item, validation_fun)
 
 
-def validate_all_keys_in_obj(obj_name, obj, validation_fun):
+def validate_all_keys_in_obj(obj_name: str, obj: dict, validation_fun: Callable) -> None:
     """Validate all (nested) keys in `obj` by using `validation_fun`.
 
     Args:
@@ -150,7 +151,7 @@ def validate_all_keys_in_obj(obj_name, obj, validation_fun):
             validate_all_items_in_list(obj_name, value, validation_fun)
 
 
-def validate_all_values_for_key_in_obj(obj, key, validation_fun):
+def validate_all_values_for_key_in_obj(obj: dict, key: str, validation_fun: Callable) -> None:
     """Validate value for all (nested) occurrence  of `key` in `obj`
     using `validation_fun`.
 
@@ -172,7 +173,7 @@ def validate_all_values_for_key_in_obj(obj, key, validation_fun):
             validate_all_values_for_key_in_list(value, key, validation_fun)
 
 
-def validate_all_values_for_key_in_list(input_list, key, validation_fun):
+def validate_all_values_for_key_in_list(input_list: list, key: str, validation_fun: Callable) -> None:
     for item in input_list:
         if isinstance(item, dict):
             validate_all_values_for_key_in_obj(item, key, validation_fun)
@@ -180,7 +181,7 @@ def validate_all_values_for_key_in_list(input_list, key, validation_fun):
             validate_all_values_for_key_in_list(item, key, validation_fun)
 
 
-def validate_key(obj_name, key):
+def validate_key(obj_name: str, key: str) -> None:
     """Check if `key` contains ".", "$" or null characters.
 
     https://docs.mongodb.com/manual/reference/limits/#Restrictions-on-Field-Names
@@ -204,7 +205,7 @@ def validate_key(obj_name, key):
         raise ValidationError(error_str)
 
 
-def _fulfillment_to_details(fulfillment):
+def _fulfillment_to_details(fulfillment: type[Fulfillment]) -> dict:
     """Encode a fulfillment as a details dictionary
 
     Args:
@@ -235,7 +236,7 @@ def _fulfillment_to_details(fulfillment):
     raise UnsupportedTypeError(fulfillment.type_name)
 
 
-def _fulfillment_from_details(data, _depth=0):
+def _fulfillment_from_details(data: dict, _depth: int = 0):
     """Load a fulfillment for a signing spec dictionary
 
     Args:

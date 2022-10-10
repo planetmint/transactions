@@ -14,6 +14,7 @@ Attributes:
 from collections import namedtuple
 from copy import deepcopy
 from functools import lru_cache
+from typing import Optional
 import rapidjson
 
 import base58
@@ -21,21 +22,13 @@ from cryptoconditions import Fulfillment, ThresholdSha256, Ed25519Sha256, Zenroo
 from cryptoconditions.exceptions import ParsingError, ASN1DecodeError, ASN1EncodeError
 from cid import is_cid
 
-try:
-    from hashlib import sha3_256
-except ImportError:
-    from sha3 import sha3_256
+from hashlib import sha3_256
 
 from transactions.common.crypto import PrivateKey, hash_data
 from transactions.common.exceptions import (
     KeypairMismatchException,
-    InputDoesNotExist,
-    DoubleSpend,
     InvalidHash,
-    InvalidSignature,
-    AmountError,
     AssetIdMismatch,
-    DuplicateTransaction,
 )
 from transactions.common.schema import validate_transaction_schema
 from transactions.common.utils import serialize, validate_txn_obj, validate_key, validate_language_key
@@ -85,16 +78,16 @@ class Transaction(object):
         version (string): Defines the version number of a Transaction.
     """
 
-    CREATE = "CREATE"
-    TRANSFER = "TRANSFER"
-    VALIDATOR_ELECTION = VALIDATOR_ELECTION
-    CHAIN_MIGRATION_ELECTION = CHAIN_MIGRATION_ELECTION
-    VOTE = VOTE
-    ALLOWED_OPERATIONS = (CREATE, TRANSFER)
-    ASSET = "asset"
-    METADATA = "metadata"
-    DATA = "data"
-    VERSION = "2.0"
+    CREATE: str = "CREATE"
+    TRANSFER: str = "TRANSFER"
+    VALIDATOR_ELECTION: str = VALIDATOR_ELECTION
+    CHAIN_MIGRATION_ELECTION: str = CHAIN_MIGRATION_ELECTION
+    VOTE: str = VOTE
+    ALLOWED_OPERATIONS: tuple[str, ...] = (CREATE, TRANSFER)
+    ASSET: str = "asset"
+    METADATA: str = "metadata"
+    DATA: str = "data"
+    VERSION: str = "2.0"
 
     def __init__(
         self,
@@ -183,31 +176,6 @@ class Transaction(object):
         self._id = hash_id
         self.tx_dict = tx_dict
 
-    def validate(self, planet, current_transactions=[]):
-        """Validate transaction spend
-        Args:
-            planet (Planetmint): an instantiated planetmint.Planetmint object.
-        Returns:
-            The transaction (Transaction) if the transaction is valid else it
-            raises an exception describing the reason why the transaction is
-            invalid.
-        Raises:
-            ValidationError: If the transaction is invalid
-        """
-        input_conditions = []
-
-        if self.operation == Transaction.CREATE:
-            duplicates = any(txn for txn in current_transactions if txn.id == self.id)
-            if planet.is_committed(self.id) or duplicates:
-                raise DuplicateTransaction("transaction `{}` already exists".format(self.id))
-
-            if not self.inputs_valid(input_conditions):
-                raise InvalidSignature("Transaction signature is invalid.")
-
-        elif self.operation == Transaction.TRANSFER:
-            self.validate_transfer_inputs(planet, current_transactions)
-
-        return self
 
     @property
     def unspent_outputs(self):
@@ -252,7 +220,7 @@ class Transaction(object):
             return False
         return self.to_dict() == other
 
-    def to_inputs(self, indices=None):
+    def to_inputs(self, indices: Optional[list[int]] = None) -> list[Input]:
         """Converts a Transaction's outputs to spendable inputs.
 
         Note:
@@ -274,17 +242,17 @@ class Transaction(object):
         """
         # NOTE: If no indices are passed, we just assume to take all outputs
         #       as inputs.
-        indices = indices or range(len(self.outputs))
+        iterable_indices = indices or range(len(self.outputs))
         return [
             Input(
                 self.outputs[idx].fulfillment,
                 self.outputs[idx].public_keys,
                 TransactionLink(self.id, idx),
             )
-            for idx in indices
+            for idx in iterable_indices
         ]
 
-    def add_input(self, input_):
+    def add_input(self, input_: Input) -> None:
         """Adds an input to a Transaction's list of inputs.
 
         Args:
@@ -295,7 +263,7 @@ class Transaction(object):
             raise TypeError("`input_` must be a Input instance")
         self.inputs.append(input_)
 
-    def add_output(self, output):
+    def add_output(self, output: Output) -> None:
         """Adds an output to a Transaction's list of outputs.
 
         Args:
@@ -307,7 +275,7 @@ class Transaction(object):
             raise TypeError("`output` must be an Output instance or None")
         self.outputs.append(output)
 
-    def sign(self, private_keys):
+    def sign(self, private_keys: list[str]):
         """Fulfills a previous Transaction's Output by signing Inputs.
 
         Note:
@@ -361,7 +329,7 @@ class Transaction(object):
         return self
 
     @classmethod
-    def _sign_input(cls, input_, message, key_pairs):
+    def _sign_input(cls, input_: Input, message: str, key_pairs: dict) -> Input:
         """Signs a single Input.
 
         Note:
@@ -386,7 +354,7 @@ class Transaction(object):
             raise ValueError("Fulfillment couldn't be matched to " "Cryptocondition fulfillment type.")
 
     @classmethod
-    def _sign_zenroom_fulfillment(cls, input_, message, key_pairs):
+    def _sign_zenroom_fulfillment(cls, input_: Input, message: str, key_pairs: dict) -> Input:
         """Signs a Zenroomful.
 
         Args:
@@ -401,14 +369,14 @@ class Transaction(object):
         #       this should never happen, but then again, never say never.
         input_ = deepcopy(input_)
         public_key = input_.owners_before[0]
-        message = sha3_256(message.encode())
+        sha3_message = sha3_256(message.encode())
         if input_.fulfills:
-            message.update("{}{}".format(input_.fulfills.txid, input_.fulfills.output).encode())
+            sha3_message.update("{}{}".format(input_.fulfills.txid, input_.fulfills.output).encode())
 
         try:
             # cryptoconditions makes no assumptions of the encoding of the
             # message to sign or verify. It only accepts bytestrings
-            input_.fulfillment.sign(message.digest(), base58.b58decode(key_pairs[public_key].encode()))
+            input_.fulfillment.sign(sha3_message.digest(), base58.b58decode(key_pairs[public_key].encode()))
         except KeyError:
             raise KeypairMismatchException(
                 "Public key {} is not a pair to " "any of the private keys".format(public_key)
@@ -416,7 +384,7 @@ class Transaction(object):
         return input_
 
     @classmethod
-    def _sign_simple_signature_fulfillment(cls, input_, message, key_pairs):
+    def _sign_simple_signature_fulfillment(cls, input_: Input, message: str, key_pairs: dict) -> Input:
         """Signs a Ed25519Fulfillment.
 
         Args:
@@ -431,14 +399,14 @@ class Transaction(object):
         #       this should never happen, but then again, never say never.
         input_ = deepcopy(input_)
         public_key = input_.owners_before[0]
-        message = sha3_256(message.encode())
+        sha3_message = sha3_256(message.encode())
         if input_.fulfills:
-            message.update("{}{}".format(input_.fulfills.txid, input_.fulfills.output).encode())
+            sha3_message.update("{}{}".format(input_.fulfills.txid, input_.fulfills.output).encode())
 
         try:
             # cryptoconditions makes no assumptions of the encoding of the
             # message to sign or verify. It only accepts bytestrings
-            input_.fulfillment.sign(message.digest(), base58.b58decode(key_pairs[public_key].encode()))
+            input_.fulfillment.sign(sha3_message.digest(), base58.b58decode(key_pairs[public_key].encode()))
         except KeyError:
             raise KeypairMismatchException(
                 "Public key {} is not a pair to " "any of the private keys".format(public_key)
@@ -446,7 +414,7 @@ class Transaction(object):
         return input_
 
     @classmethod
-    def _sign_threshold_signature_fulfillment(cls, input_, message, key_pairs):
+    def _sign_threshold_signature_fulfillment(cls, input_: Input, message: str, key_pairs: dict) -> Input:
         """Signs a ThresholdSha256.
 
         Args:
@@ -456,9 +424,9 @@ class Transaction(object):
             key_pairs (dict): The keys to sign the Transaction with.
         """
         input_ = deepcopy(input_)
-        message = sha3_256(message.encode())
+        sha3_message = sha3_256(message.encode())
         if input_.fulfills:
-            message.update("{}{}".format(input_.fulfills.txid, input_.fulfills.output).encode())
+            sha3_message.update("{}{}".format(input_.fulfills.txid, input_.fulfills.output).encode())
 
         for owner_before in set(input_.owners_before):
             # TODO: CC should throw a KeypairMismatchException, instead of
@@ -486,10 +454,10 @@ class Transaction(object):
             # cryptoconditions makes no assumptions of the encoding of the
             # message to sign or verify. It only accepts bytestrings
             for subffill in subffills:
-                subffill.sign(message.digest(), base58.b58decode(private_key.encode()))
+                subffill.sign(sha3_message.digest(), base58.b58decode(private_key.encode()))
         return input_
 
-    def inputs_valid(self, outputs=None):
+    def inputs_valid(self, outputs=None) -> bool:
         """Validates the Inputs in the Transaction against given
         Outputs.
 
@@ -522,7 +490,7 @@ class Transaction(object):
             allowed_ops = ", ".join(self.__class__.ALLOWED_OPERATIONS)
             raise TypeError("`operation` must be one of {}".format(allowed_ops))
 
-    def _inputs_valid(self, output_condition_uris):
+    def _inputs_valid(self, output_condition_uris: list[str]) -> bool:
         """Validates an Input against a given set of Outputs.
 
         Note:
@@ -552,7 +520,7 @@ class Transaction(object):
         return all(validate(i, cond) for i, cond in enumerate(output_condition_uris))
 
     @lru_cache(maxsize=16384)
-    def _input_valid(self, input_, operation, message, output_condition_uri=None):
+    def _input_valid(self, input_: Input, operation: str, message: str, output_condition_uri: Optional[str] = None) -> bool:
         """Validates a single Input against a single Output.
 
         Note:
@@ -603,16 +571,16 @@ class Transaction(object):
             msg = json.loads(message)
             ffill_valid = parsed_ffill.validate(message=json.dumps(msg["script"]))
         else:
-            message = sha3_256(message.encode())
+            sha3_message = sha3_256(message.encode())
             if input_.fulfills:
-                message.update("{}{}".format(input_.fulfills.txid, input_.fulfills.output).encode())
+                sha3_message.update("{}{}".format(input_.fulfills.txid, input_.fulfills.output).encode())
 
             # NOTE: We pass a timestamp to `.validate`, as in case of a timeout
             #       condition we'll have to validate against it
 
             # cryptoconditions makes no assumptions of the encoding of the
             # message to sign or verify. It only accepts bytestrings
-            ffill_valid = parsed_ffill.validate(message=message.digest())
+            ffill_valid = parsed_ffill.validate(message=sha3_message.digest())
         return output_valid and ffill_valid
 
     # This function is required by `lru_cache` to create a key for memoization
@@ -620,7 +588,7 @@ class Transaction(object):
         return hash(self.id)
 
     @memoize_to_dict
-    def to_dict(self):
+    def to_dict(self) -> dict:
         """Transforms the object to a Python dictionary.
 
         Returns:
@@ -641,7 +609,7 @@ class Transaction(object):
 
     @staticmethod
     # TODO: Remove `_dict` prefix of variable.
-    def _remove_signatures(tx_dict):
+    def _remove_signatures(tx_dict: dict) -> dict:
         """Takes a Transaction dictionary and removes all signatures.
 
         Args:
@@ -718,7 +686,7 @@ class Transaction(object):
         return asset_ids.pop()
 
     @staticmethod
-    def validate_id(tx_body):
+    def validate_id(tx_body: dict):
         """Validate the transaction ID of a transaction
 
         Args:
@@ -743,7 +711,7 @@ class Transaction(object):
 
     @classmethod
     @memoize_from_dict
-    def from_dict(cls, tx, skip_schema_validation=True):
+    def from_dict(cls, tx: dict, skip_schema_validation=True):
         """Transforms a Python dictionary to a Transaction object.
 
         Args:
@@ -799,58 +767,7 @@ class Transaction(object):
             script=script_,
         )
 
-    @classmethod
-    def from_db(cls, planet, tx_dict_list):
-        """Helper method that reconstructs a transaction dict that was returned
-        from the database. It checks what asset_id to retrieve, retrieves the
-        asset from the asset table and reconstructs the transaction.
-
-        Args:
-            planet (:class:`~planetmint.tendermint.Planetmint`): An instance
-                of Planetmint used to perform database queries.
-            tx_dict_list (:list:`dict` or :obj:`dict`): The transaction dict or
-                list of transaction dict as returned from the database.
-
-        Returns:
-            :class:`~Transaction`
-
-        """
-        return_list = True
-        if isinstance(tx_dict_list, dict):
-            tx_dict_list = [tx_dict_list]
-            return_list = False
-
-        tx_map = {}
-        tx_ids = []
-        for tx in tx_dict_list:
-            tx.update({"metadata": None})
-            tx_map[tx["id"]] = tx
-            tx_ids.append(tx["id"])
-
-        assets = list(planet.get_assets(tx_ids))
-        for asset in assets:
-            if asset is not None:
-                # This is tarantool specific behaviour needs to be addressed
-                tx = tx_map[asset[1]]
-                tx["asset"] = asset[0]
-
-        tx_ids = list(tx_map.keys())
-        metadata_list = list(planet.get_metadata(tx_ids))
-        for metadata in metadata_list:
-            if "id" in metadata:
-                tx = tx_map[metadata["id"]]
-                tx.update({"metadata": metadata.get("metadata")})
-
-        if return_list:
-            tx_list = []
-            for tx_id, tx in tx_map.items():
-                tx_list.append(cls.from_dict(tx))
-            return tx_list
-        else:
-            tx = list(tx_map.values())[0]
-            return cls.from_dict(tx)
-
-    type_registry = {}
+    type_registry: dict[type, type] = {}
 
     @staticmethod
     def register_type(tx_type, tx_class):
@@ -869,54 +786,6 @@ class Transaction(object):
         validate_txn_obj(cls.METADATA, tx, cls.METADATA, validate_key)
         validate_language_key(tx[cls.ASSET], cls.DATA)
         validate_language_key(tx, cls.METADATA)
-
-    def validate_transfer_inputs(self, planet, current_transactions=[]):
-        # store the inputs so that we can check if the asset ids match
-        input_txs = []
-        input_conditions = []
-        for input_ in self.inputs:
-            input_txid = input_.fulfills.txid
-            input_tx = planet.get_transaction(input_txid)
-            if input_tx is None:
-                for ctxn in current_transactions:
-                    if ctxn.id == input_txid:
-                        input_tx = ctxn
-
-            if input_tx is None:
-                raise InputDoesNotExist("input `{}` doesn't exist".format(input_txid))
-
-            spent = planet.get_spent(input_txid, input_.fulfills.output, current_transactions)
-            if spent:
-                raise DoubleSpend("input `{}` was already spent".format(input_txid))
-
-            output = input_tx.outputs[input_.fulfills.output]
-            input_conditions.append(output)
-            input_txs.append(input_tx)
-
-        # Validate that all inputs are distinct
-        links = [i.fulfills.to_uri() for i in self.inputs]
-        if len(links) != len(set(links)):
-            raise DoubleSpend('tx "{}" spends inputs twice'.format(self.id))
-
-        # validate asset id
-        asset_id = self.get_asset_id(input_txs)
-        if asset_id != self.asset["id"]:
-            raise AssetIdMismatch(("The asset id of the input does not" " match the asset id of the" " transaction"))
-
-        input_amount = sum([input_condition.amount for input_condition in input_conditions])
-        output_amount = sum([output_condition.amount for output_condition in self.outputs])
-
-        if output_amount != input_amount:
-            raise AmountError(
-                (
-                    "The amount used in the inputs `{}`" " needs to be same as the amount used" " in the outputs `{}`"
-                ).format(input_amount, output_amount)
-            )
-
-        if not self.inputs_valid(input_conditions):
-            raise InvalidSignature("Transaction signature is invalid.")
-
-        return True
 
     @classmethod
     def complete_tx_i_o(self, tx_signers, recipients):
