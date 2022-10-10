@@ -1,9 +1,12 @@
 [tool.poetry]
-name = "transactions"
+name = "planetmint-transactions"
 version = "0.1.0"
 description = "Python implementation of the planetmint transactions spec"
 authors = ["Lorenz Herzberger <lorenzherzberger@gmail.com>"]
 readme = "README.md"
+packages = [
+    { include = "transactions" }
+]
 
 [tool.poetry.dependencies]
 python = "^3.9"
