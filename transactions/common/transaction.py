@@ -87,12 +87,12 @@ class Transaction(object):
     ASSET: str = "asset"
     METADATA: str = "metadata"
     DATA: str = "data"
-    VERSION: str = "2.0"
+    VERSION: str = "3.0"
 
     def __init__(
         self,
         operation,
-        asset,
+        assets,
         inputs=None,
         outputs=None,
         metadata=None,
@@ -127,28 +127,28 @@ class Transaction(object):
         # Asset payloads for 'CREATE' operations must be None or
         # dicts holding a `data` property. Asset payloads for 'TRANSFER'
         # operations must be dicts holding an `id` property.
-        if operation == self.CREATE and asset is not None:
-            if not isinstance(asset, dict):
+        if operation == self.CREATE and assets is not None:
+            if not isinstance(assets, list):
                 raise TypeError(
                     (
-                        "`asset` must be None or a dict holding a `data` "
+                        "`asset` must be None or a list holding dicts"
                         " property instance for '{}' Transactions".format(operation)
                     )
                 )
 
-            if "data" in asset:
-                if asset["data"] is not None and not isinstance(asset["data"], str):
-                    if is_cid(asset["data"]) == False:
-                        raise TypeError("`asset.data` not valid CID")
+            if "data" in assets[0]:
+                if assets[0]["data"] is not None and not isinstance(assets[0]["data"], str):
+                    if is_cid(assets[0]["data"]) == False:
+                        raise TypeError("`assets[0].data` not valid CID")
 
                     raise TypeError(
                         (
-                            "`asset` must be None or a dict holding a `data` "
+                            "`assets` must be None or a dict holding a `data` "
                             " property instance for '{}' Transactions".format(operation)
                         )
                     )
 
-        elif operation == self.TRANSFER and not (isinstance(asset, dict) and "id" in asset):
+        elif operation == self.TRANSFER and not (isinstance(assets, list) and "id" in assets[0]):
             raise TypeError(("`asset` must be a dict holding an `id` property " "for 'TRANSFER' Transactions"))
 
         if outputs and not isinstance(outputs, list):
@@ -168,7 +168,7 @@ class Transaction(object):
 
         self.version = version if version is not None else self.VERSION
         self.operation = operation
-        self.asset = asset
+        self.assets = assets
         self.inputs = inputs or []
         self.outputs = outputs or []
         self.metadata = metadata
@@ -599,7 +599,7 @@ class Transaction(object):
             "outputs": [output.to_dict() for output in self.outputs],
             "operation": str(self.operation),
             "metadata": self.metadata,
-            "asset": self.asset,
+            "assets": self.assets,
             "version": self.version,
             "id": self._id,
         }
@@ -734,8 +734,8 @@ class Transaction(object):
             "outputs": tx["outputs"],
             "operation": operation,
             "metadata": tx["metadata"],
-            "asset": tx[
-                "asset"
+            "assets": tx[
+                "assets"
             ],  # [0] if isinstance( tx['asset'], list) or isinstance( tx['asset'], tuple) else tx['asset'],  # noqa: E501
             "version": tx["version"],
             "id": id,
@@ -757,7 +757,7 @@ class Transaction(object):
         outputs = [Output.from_dict(output) for output in tx["outputs"]]
         return cls(
             tx["operation"],
-            tx["asset"],
+            tx["assets"],
             inputs,
             outputs,
             tx["metadata"],

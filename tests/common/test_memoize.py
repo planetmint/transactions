@@ -14,7 +14,7 @@ from transactions.common.memoize import to_dict, from_dict
 
 def test_memoize_to_dict():
     alice = generate_key_pair()
-    asset = {"data": "QmaozNR7DZHQK1ZcU9p7QdrshMvXqWK6gpu5rmrkPdT3L4"}
+    assets = [{"data": "QmaozNR7DZHQK1ZcU9p7QdrshMvXqWK6gpu5rmrkPdT3L4"}]
 
     assert to_dict.cache_info().hits == 0
     assert to_dict.cache_info().misses == 0
@@ -22,7 +22,7 @@ def test_memoize_to_dict():
     tx = Create.generate(
         [alice.public_key],
         [([alice.public_key], 1)],
-        asset=asset,
+        assets=assets,
     ).sign([alice.private_key])
 
     tx.to_dict()
@@ -39,7 +39,7 @@ def test_memoize_to_dict():
 
 def test_memoize_from_dict():
     alice = generate_key_pair()
-    asset = {"data": "QmaozNR7DZHQK1ZcU9p7QdrshMvXqWK6gpu5rmrkPdT3L4"}
+    assets = [{"data": "QmaozNR7DZHQK1ZcU9p7QdrshMvXqWK6gpu5rmrkPdT3L4"}]
 
     assert from_dict.cache_info().hits == 0
     assert from_dict.cache_info().misses == 0
@@ -47,7 +47,7 @@ def test_memoize_from_dict():
     tx = Create.generate(
         [alice.public_key],
         [([alice.public_key], 1)],
-        asset=asset,
+        assets=assets,
     ).sign([alice.private_key])
     tx_dict = deepcopy(tx.to_dict())
 
@@ -65,7 +65,7 @@ def test_memoize_from_dict():
 
 def test_memoize_input_valid():
     alice = generate_key_pair()
-    asset = {"data": "QmaozNR7DZHQK1ZcU9p7QdrshMvXqWK6gpu5rmrkPdT3L4"}
+    assets = [{"data": "QmaozNR7DZHQK1ZcU9p7QdrshMvXqWK6gpu5rmrkPdT3L4"}]
 
     assert Transaction._input_valid.cache_info().hits == 0
     assert Transaction._input_valid.cache_info().misses == 0
@@ -73,7 +73,7 @@ def test_memoize_input_valid():
     tx = Create.generate(
         [alice.public_key],
         [([alice.public_key], 1)],
-        asset=asset,
+        assets=assets,
     ).sign([alice.private_key])
 
     tx.inputs_valid()
