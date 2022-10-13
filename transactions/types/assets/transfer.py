@@ -37,7 +37,7 @@ class Transfer(Transaction):
             outputs.append(Output.generate(pub_keys, amount))
 
         if not isinstance(asset_ids, list):
-            raise TypeError("`asset_id` must be a list of strings")
+            raise TypeError("`asset_ids` must be a list of strings")
 
         return (deepcopy(inputs), outputs)
 
@@ -72,7 +72,7 @@ class Transfer(Transaction):
             recipients (:obj:`list` of :obj:`tuple`): A list of
                 ([keys],amount) that represent the recipients of this
                 Transaction.
-            asset_id (str): The asset ID of the asset to be transferred in
+            asset_ids (:obj:`list` of :obj:`str`): The asset ID of the asset to be transferred in
                 this Transaction.
             metadata (dict): Python dictionary to be stored along with the
                 Transaction.
