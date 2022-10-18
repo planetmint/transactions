@@ -84,7 +84,7 @@ class Transaction(object):
     CHAIN_MIGRATION_ELECTION: str = CHAIN_MIGRATION_ELECTION
     VOTE: str = VOTE
     ALLOWED_OPERATIONS: tuple[str, ...] = (CREATE, TRANSFER)
-    ASSET: str = "asset"
+    ASSETS: str = "assets"
     METADATA: str = "metadata"
     DATA: str = "data"
     VERSION: str = "3.0"
@@ -782,9 +782,9 @@ class Transaction(object):
     @classmethod
     def validate_schema(cls, tx):
         validate_transaction_schema(tx)
-        validate_txn_obj(cls.ASSET, tx[cls.ASSET], cls.DATA, validate_key)
+        validate_txn_obj(cls.ASSETS, tx[cls.ASSETS], cls.DATA, validate_key)
         validate_txn_obj(cls.METADATA, tx, cls.METADATA, validate_key)
-        validate_language_key(tx[cls.ASSET], cls.DATA)
+        validate_language_key(tx[cls.ASSETS], cls.DATA)
         validate_language_key(tx, cls.METADATA)
 
     @classmethod
