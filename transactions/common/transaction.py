@@ -677,7 +677,7 @@ class Transaction(object):
 
         # create a set of the transactions' asset ids
         asset_ids = {
-            tx.id if tx.operation in [tx.CREATE, tx.VALIDATOR_ELECTION] else tx.asset["id"] for tx in transactions
+            tx.id if tx.operation in [tx.CREATE, tx.VALIDATOR_ELECTION] else tx.assets[0]["id"] for tx in transactions
         }
 
         # check that all the transasctions have the same asset id
