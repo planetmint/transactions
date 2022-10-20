@@ -28,7 +28,7 @@ class Election(Transaction):
     ELECTION_THRESHOLD = 2 / 3
 
     @classmethod
-    def validate_election(self, tx_signers, recipients, asset, metadata):
+    def validate_election(self, tx_signers, recipients, assets, metadata):
         if not isinstance(tx_signers, list):
             raise TypeError("`tx_signers` must be a list instance")
         if not isinstance(recipients, list):
@@ -37,9 +37,8 @@ class Election(Transaction):
             raise ValueError("`tx_signers` list cannot be empty")
         if len(recipients) == 0:
             raise ValueError("`recipients` list cannot be empty")
-        if not asset is None:
-            if not isinstance(asset, dict):
-                raise TypeError("`asset` must be a CID string or None")
+        if not isinstance(assets, list) and len(assets) != 1:
+            raise TypeError("`assets` must be a list containing exactly on element")
         if not (metadata is None or isinstance(metadata, str)):
             # add check if metadata is ipld marshalled CID string
             raise TypeError("`metadata` must be a CID string or None")
@@ -50,11 +49,11 @@ class Election(Transaction):
     def generate(cls, initiator, voters, election_data, metadata=None):
         # Break symmetry in case we need to call an election with the same properties twice
         uuid = uuid4()
-        election_data["seed"] = str(uuid)
+        election_data[0]["seed"] = str(uuid)
 
         Election.validate_election(initiator, voters, election_data, metadata)
         (inputs, outputs) = Transaction.complete_tx_i_o(initiator, voters)
-        election = cls(cls.OPERATION, {"data": election_data}, inputs, outputs, metadata)
+        election = cls(cls.OPERATION, [{"data": election_data}], inputs, outputs, metadata)
         cls.validate_schema(election.to_dict())
         return election
 
