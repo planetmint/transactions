@@ -24,9 +24,11 @@ properties:
   operation:
     "$ref": "#/definitions/operation"
   assets:
-    type: array
-    items: 
-      "$ref": "#/definitions/asset"
+    anyOf:
+    - type: array
+      items: 
+        "$ref": "#/definitions/asset"
+    - type: 'null'
   inputs:
     type: array
     title: "Transaction inputs"
