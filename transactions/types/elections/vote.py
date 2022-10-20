@@ -23,9 +23,9 @@ class Vote(Transfer):
     TX_SCHEMA_CUSTOM = TX_SCHEMA_VOTE
 
     @classmethod
-    def generate(cls, inputs, recipients, election_id, metadata=None):
-        (inputs, outputs) = cls.validate_transfer(inputs, recipients, election_id, metadata)
-        election_vote = cls(cls.OPERATION, {"id": election_id}, inputs, outputs, metadata)
+    def generate(cls, inputs, recipients, election_ids, metadata=None):
+        (inputs, outputs) = cls.validate_transfer(inputs, recipients, election_ids, metadata)
+        election_vote = cls(cls.OPERATION, [{"id": id} for  id in election_ids], inputs, outputs, metadata)
         cls.validate_schema(election_vote.to_dict())
         return election_vote
 
