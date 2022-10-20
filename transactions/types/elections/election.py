@@ -49,7 +49,7 @@ class Election(Transaction):
     def generate(cls, initiator, voters, election_data, metadata=None):
         # Break symmetry in case we need to call an election with the same properties twice
         uuid = uuid4()
-        election_data[0]["seed"] = str(uuid)
+        election_data["seed"] = str(uuid)
 
         Election.validate_election(initiator, voters, election_data, metadata)
         (inputs, outputs) = Transaction.complete_tx_i_o(initiator, voters)
