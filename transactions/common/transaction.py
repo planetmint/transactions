@@ -186,7 +186,7 @@ class Transaction(object):
         if self.operation == self.CREATE:
             self._asset_id = self._id
         elif self.operation == self.TRANSFER:
-            self._asset_id = self.asset["id"]
+            self._asset_id = self.assets[0]["id"]
         return (
             UnspentOutput(
                 transaction_id=self._id,
