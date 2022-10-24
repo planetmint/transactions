@@ -146,7 +146,7 @@ definitions:
       properties:
         type:
           type: string
-          pattern: "^ed25519-sha-256$"
+          pattern: "^(ed25519|zenroom)-sha-256$"
         public_key:
           "$ref": "#/definitions/base58"
     - type: object
