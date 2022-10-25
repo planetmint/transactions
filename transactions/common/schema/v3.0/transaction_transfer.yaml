@@ -11,11 +11,12 @@ required:
 - assets
 properties:
   assets:
+    anyOf:
       type: array
       minItems: 1
       items:
         "$ref": "#/definitions/asset"
-    - type: 'null'
+      type: 'null'
   inputs:
     type: array
     title: "Transaction inputs"
