@@ -3,11 +3,13 @@
 # SPDX-License-Identifier: (Apache-2.0 AND CC-BY-4.0)
 # Code is Apache-2.0 and docs are CC-BY-4.0
 
-from base58 import b58decode
 import pytest
 import random
+
+from base58 import b58decode
 from cryptoconditions import ThresholdSha256, Ed25519Sha256
 from ipld import marshal, multihash
+from transactions.types.assets.create import Create
 
 USER_PRIVATE_KEY = "8eJ8q9ZQpReWyQT5aFCiwtZ5wDZC4eDnCen88p3tQ6ie"
 USER_PUBLIC_KEY = "JEAkEJqLbbgDRAtMm8YAjGp759Aq2qTn9eaEHUj2XePE"
@@ -24,7 +26,7 @@ CC_FULFILLMENT_URI = (
 )
 CC_CONDITION_URI = "ni:///sha-256;" "eZI5q6j8T_fqv7xMROaei9_tmTMk4S7WR5Kr4onPHV8" "?fpt=ed25519-sha-256&cost=131072"
 
-ASSET_DEFINITION = {"data": "QmaozNR7DZHQK1ZcU9p7QdrshMvXqWK6gpu5rmrkPdT3L4"}
+ASSET_DEFINITION = [{"data": "QmaozNR7DZHQK1ZcU9p7QdrshMvXqWK6gpu5rmrkPdT3L4"}]
 
 DATA = "QmaozNR7DZHQK1ZcU9p7QdrshMvXqWK6gpu5rmrkPdT3L4"
 
@@ -137,7 +139,7 @@ def data():
 def utx(user_input, user_output):
     from transactions.common.transaction import Transaction
 
-    return Transaction(Transaction.CREATE, {"data": None}, [user_input], [user_output])
+    return Transaction(Transaction.CREATE, [{"data": None}], [user_input], [user_output])
 
 
 @pytest.fixture
@@ -151,7 +153,7 @@ def transfer_utx(user_output, user2_output, utx):
 
     user_output = user_output.to_dict()
     input = Input(utx.outputs[0].fulfillment, user_output["public_keys"], TransactionLink(utx.id, 0))
-    return Transaction("TRANSFER", {"id": utx.id}, [input], [user2_output])
+    return Transaction("TRANSFER", [{"id": utx.id}], [input], [user2_output])
 
 
 @pytest.fixture
@@ -162,7 +164,7 @@ def transfer_tx(transfer_utx, user_priv):
 @pytest.fixture(scope="session")
 def dummy_transaction():
     return {
-        "asset": {"data": None},
+        "assets": [{"data": None}],
         "id": 64 * "a",
         "inputs": [
             {
@@ -183,14 +185,14 @@ def dummy_transaction():
                 "public_keys": [58 * "b"],
             }
         ],
-        "version": "2.0",
+        "version": "3.0",
     }
 
 
 @pytest.fixture
 def unfulfilled_transaction():
     return {
-        "asset": {"data": "QmaozNR7DZHQK1ZcU9p7QdrshMvXqWK6gpu5rmrkPdT3L4"},
+        "assets": [{"data": "QmaozNR7DZHQK1ZcU9p7QdrshMvXqWK6gpu5rmrkPdT3L4"}],
         "id": None,
         "inputs": [
             {
@@ -226,7 +228,7 @@ def unfulfilled_transaction():
 @pytest.fixture
 def fulfilled_transaction():
     return {
-        "asset": {"data": "QmaozNR7DZHQK1ZcU9p7QdrshMvXqWK6gpu5rmrkPdT3L4"},
+        "assets": [{"data": "QmaozNR7DZHQK1ZcU9p7QdrshMvXqWK6gpu5rmrkPdT3L4"}],
         "id": None,
         "inputs": [
             {
@@ -285,7 +287,7 @@ def fulfilled_transaction():
 )
 def tri_state_transaction(request):
     tx = {
-        "asset": {"data": "QmaozNR7DZHQK1ZcU9p7QdrshMvXqWK6gpu5rmrkPdT3L4"},
+        "assets": [{"data": "QmaozNR7DZHQK1ZcU9p7QdrshMvXqWK6gpu5rmrkPdT3L4"}],
         "id": None,
         "inputs": [
             {"fulfillment": None, "fulfills": None, "owners_before": ["JEAkEJqLbbgDRAtMm8YAjGp759Aq2qTn9eaEHUj2XePE"]}
@@ -305,7 +307,7 @@ def tri_state_transaction(request):
                 "public_keys": ["JEAkEJqLbbgDRAtMm8YAjGp759Aq2qTn9eaEHUj2XePE"],
             }
         ],
-        "version": "2.0",
+        "version": "3.0",
     }
     tx["id"] = request.param["id"]
     tx["inputs"][0]["fulfillment"] = request.param["fulfillment"]
@@ -347,11 +349,9 @@ def merlin():
 
 @pytest.fixture
 def create_tx(alice, user_pk):
-    from transactions.types.assets.create import Create
-
     name = f"I am created by the create_tx fixture. My random identifier is {random.random()}."
-    asset = {"data": multihash(marshal({"name": name}))}
-    return Create.generate([alice.public_key], [([user_pk], 1)], asset=asset)
+    assets = [{"data": multihash(marshal({"name": name}))}]
+    return Create.generate([alice.public_key], [([user_pk], 1)], assets=assets)
 
 
 @pytest.fixture
@@ -363,5 +363,5 @@ def signed_transfer_tx(signed_create_tx, user_pk, user_sk):
     from transactions.types.assets.transfer import Transfer
 
     inputs = signed_create_tx.to_inputs()
-    tx = Transfer.generate(inputs, [([user_pk], 1)], asset_id=signed_create_tx.id)
+    tx = Transfer.generate(inputs, [([user_pk], 1)], asset_ids=[signed_create_tx.id])
     return tx.sign([user_sk])
