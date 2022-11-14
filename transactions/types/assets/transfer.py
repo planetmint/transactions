@@ -17,7 +17,13 @@ class Transfer(Transaction):
     ALLOWED_OPERATIONS = (OPERATION,)
 
     @classmethod
-    def validate_transfer(cls, inputs: list[Input], recipients: list[tuple[list[str],int]], asset_ids: list[str], metadata: Optional[dict]):
+    def validate_transfer(
+        cls,
+        inputs: list[Input],
+        recipients: list[tuple[list[str], int]],
+        asset_ids: list[str],
+        metadata: Optional[dict],
+    ):
         if not isinstance(inputs, list):
             raise TypeError("`inputs` must be a list instance")
         if len(inputs) == 0:
@@ -42,7 +48,13 @@ class Transfer(Transaction):
         return (deepcopy(inputs), outputs)
 
     @classmethod
-    def generate(cls, inputs: list[Input], recipients: list[tuple[list[str],int]], asset_ids: list[str], metadata: Optional[dict] = None):
+    def generate(
+        cls,
+        inputs: list[Input],
+        recipients: list[tuple[list[str], int]],
+        asset_ids: list[str],
+        metadata: Optional[dict] = None,
+    ):
         """A simple way to generate a `TRANSFER` transaction.
 
         Note:

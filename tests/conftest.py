@@ -313,6 +313,7 @@ def tri_state_transaction(request):
     tx["inputs"][0]["fulfillment"] = request.param["fulfillment"]
     return tx
 
+
 @pytest.fixture
 def user_sk():
     return USER_PRIVATE_KEY
@@ -322,17 +323,20 @@ def user_sk():
 def user_pk():
     return USER_PUBLIC_KEY
 
+
 @pytest.fixture
 def alice():
     from transactions.common.crypto import generate_key_pair
 
     return generate_key_pair()
 
+
 @pytest.fixture
 def bob():
     from transactions.common.crypto import generate_key_pair
 
     return generate_key_pair()
+
 
 @pytest.fixture
 def carol():
@@ -347,6 +351,7 @@ def merlin():
 
     return generate_key_pair()
 
+
 @pytest.fixture
 def create_tx(alice, user_pk):
     name = f"I am created by the create_tx fixture. My random identifier is {random.random()}."
@@ -357,6 +362,7 @@ def create_tx(alice, user_pk):
 @pytest.fixture
 def signed_create_tx(alice, create_tx):
     return create_tx.sign([alice.private_key])
+
 
 @pytest.fixture
 def signed_transfer_tx(signed_create_tx, user_pk, user_sk):

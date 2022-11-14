@@ -9,6 +9,7 @@ from typing import Optional
 from transactions.common.transaction import Transaction
 from transactions.common.schema import _validate_schema, TX_SCHEMA_COMMON
 
+
 class Election(Transaction):
     """Represents election transactions.
 

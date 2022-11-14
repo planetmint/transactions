@@ -3,6 +3,7 @@ import codecs
 from functools import lru_cache
 from typing import Callable
 
+
 class HDict(dict):
     def __hash__(self):
         return hash(codecs.decode(self["id"], "hex"))

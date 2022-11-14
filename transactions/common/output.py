@@ -137,7 +137,9 @@ class Output(object):
             return cls(threshold_cond, public_keys, amount=amount)
 
     @classmethod
-    def _gen_condition(cls, initial: type[ThresholdSha256], new_public_keys: Union[list[str],str]) -> type[ThresholdSha256]:
+    def _gen_condition(
+        cls, initial: type[ThresholdSha256], new_public_keys: Union[list[str], str]
+    ) -> type[ThresholdSha256]:
         """Generates ThresholdSha256 conditions from a list of new owners.
 
         Note:

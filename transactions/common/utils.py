@@ -50,6 +50,7 @@ VALID_LANGUAGES = (
     "tr",
 )
 
+
 def gen_timestamp() -> str:
     """The Unix time, rounded to the nearest second.
     See https://en.wikipedia.org/wiki/Unix_time
@@ -92,32 +93,6 @@ def deserialize(data: str) -> dict:
         string.
     """
     return rapidjson.loads(data)
-
-
-def validate_txn_obj(obj_name: str, obj: dict, key: str, validation_fun: Callable) -> None:
-    """Validate value of `key` in `obj` using `validation_fun`.
-
-    Args:
-        obj_name (str): name for `obj` being validated.
-        obj (dict): dictionary object.
-        key (str): key to be validated in `obj`.
-        validation_fun (function): function used to validate the value
-        of `key`.
-
-    Returns:
-        None: indicates validation successful
-
-    Raises:
-        ValidationError: `validation_fun` will raise exception on failure
-    """
-    backend = "tarantool" # Config().get()["database"]["backend"]
-
-    if backend == "localmongodb":
-        data = obj.get(key, {})
-        if isinstance(data, dict):
-            validate_all_keys_in_obj(obj_name, data, validation_fun)
-        elif isinstance(data, list):
-            validate_all_items_in_list(obj_name, data, validation_fun)
 
 
 def validate_all_items_in_list(obj_name: str, data: list, validation_fun: Callable) -> None:
@@ -265,27 +240,6 @@ def _fulfillment_from_details(data: dict, _depth: int = 0):
 
     raise UnsupportedTypeError(data.get("type"))
 
-def validate_language_key(obj, key):
-    """Validate all nested "language" key in `obj`.
-
-    Args:
-        obj (dict): dictionary whose "language" key is to be validated.
-
-    Returns:
-        None: validation successful
-
-     Raises:
-         ValidationError: will raise exception in case language is not valid.
-    """
-    backend = "tarantool" # Config().get()["database"]["backend"]
-
-    if backend == "localmongodb":
-        data = obj.get(key, {})
-        if isinstance(data, dict):
-            validate_all_values_for_key_in_obj(data, "language", validate_language)
-        elif isinstance(data, list):
-            validate_all_values_for_key_in_list(data, "language", validate_language)
-
 
 def validate_language(value):
     """Check if `value` is a valid language.
@@ -308,6 +262,7 @@ def validate_language(value):
             'something else like "lang".'
         ).format(value)
         raise ValidationError(error_str)
+
 
 def key_from_base64(base64_key):
     return base64.b64decode(base64_key).hex().upper()
