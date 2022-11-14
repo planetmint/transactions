@@ -8,6 +8,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [0.2.1] - 2022-11-14
 ### Fixed
 - fixed `Create` assets validation according to transactions spec `v3.0`
+
+### Removed
+- removed unused code dependent on a `localmongodb` backend
+
 ## [0.2.0] - 2022-10-27
 ### Changed
 - update transaction version number from `v2.0` to `v3.0`
