@@ -59,7 +59,7 @@ class TransactionLink(object):
         except TypeError:
             return cls()
 
-    def to_dict(self) -> Union[dict,None]:
+    def to_dict(self) -> Union[dict, None]:
         """Transforms the object to a Python dictionary.
 
         Returns:
@@ -73,7 +73,7 @@ class TransactionLink(object):
                 "output_index": self.output,
             }
 
-    def to_uri(self, path: str = "") -> Union[str,None]:
+    def to_uri(self, path: str = "") -> Union[str, None]:
         if self.txid is None and self.output is None:
             return None
         return "{}/transactions/{}/outputs/{}".format(path, self.txid, self.output)

@@ -280,9 +280,11 @@ def test_transaction_serialization(user_input, user_output, data):
         "outputs": [user_output.to_dict()],
         "operation": Transaction.CREATE,
         "metadata": None,
-        "assets": [{
-            "data": data,
-        }],
+        "assets": [
+            {
+                "data": data,
+            }
+        ],
     }
 
     tx = Transaction(Transaction.CREATE, [{"data": data}], [user_input], [user_output])
@@ -568,9 +570,11 @@ def test_create_create_transaction_single_io(user_output, user_pub, data):
     expected = {
         "outputs": [user_output.to_dict()],
         "metadata": data,
-        "assets": [{
-            "data": data,
-        }],
+        "assets": [
+            {
+                "data": data,
+            }
+        ],
         "inputs": [{"owners_before": [user_pub], "fulfillment": None, "fulfills": None}],
         "operation": "CREATE",
         "version": Transaction.VERSION,
@@ -623,7 +627,7 @@ def test_validate_multiple_io_create_transaction(user_pub, user_priv, user2_pub,
         [user_pub, user2_pub],
         [([user_pub], 1), ([user2_pub], 1)],
         metadata="QmaozNR7DZHQK1ZcU9p7QdrshMvXqWK6gpu5rmrkPdT3L4",
-        assets=asset_definition
+        assets=asset_definition,
     )
     tx = tx.sign([user_priv, user2_priv])
     assert tx.inputs_valid() is True
@@ -637,9 +641,11 @@ def test_create_create_transaction_threshold(
     expected = {
         "outputs": [user_user2_threshold_output.to_dict()],
         "metadata": data,
-        "assets": [{
-            "data": data,
-        }],
+        "assets": [
+            {
+                "data": data,
+            }
+        ],
         "inputs": [
             {
                 "owners_before": [
@@ -706,9 +712,11 @@ def test_create_transfer_transaction_single_io(tx, user_pub, user2_pub, user2_ou
         "id": None,
         "outputs": [user2_output.to_dict()],
         "metadata": None,
-        "assets": [{
-            "id": tx.id,
-        }],
+        "assets": [
+            {
+                "id": tx.id,
+            }
+        ],
         "inputs": [
             {
                 "owners_before": [user_pub],

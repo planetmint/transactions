@@ -15,7 +15,13 @@ class Create(Transaction):
     ALLOWED_OPERATIONS = (OPERATION,)
 
     @classmethod
-    def validate_create(self, tx_signers: list[str], recipients: list[tuple[list[str],int]], assets: Optional[list[dict]], metadata: Optional[dict]):
+    def validate_create(
+        self,
+        tx_signers: list[str],
+        recipients: list[tuple[list[str], int]],
+        assets: Optional[list[dict]],
+        metadata: Optional[dict],
+    ):
         if not isinstance(tx_signers, list):
             raise TypeError("`tx_signers` must be a list instance")
         if not isinstance(recipients, list):
@@ -27,15 +33,22 @@ class Create(Transaction):
         if not assets is None:
             if not isinstance(assets, list) and len(assets) != 1:
                 raise TypeError("`assets` must be a list of length 1 or None")
-            if "data" in assets[0] and not is_cid(assets[0]["data"]):
-                raise TypeError("`asset.data` must be a CID string")
+            if "data" in assets[0]:
+                if assets[0]["data"] is not None and not is_cid(assets[0]["data"]):
+                    raise TypeError("`asset.data` must be a CID string or None")
         if not (metadata is None or is_cid(metadata)):
             raise TypeError("`metadata` must be a CID string or None")
 
         return True
 
     @classmethod
-    def generate(cls, tx_signers: list[str], recipients: list[tuple[list[str],int]], metadata: Optional[dict] = None, assets: Optional[list] = None):
+    def generate(
+        cls,
+        tx_signers: list[str],
+        recipients: list[tuple[list[str], int]],
+        metadata: Optional[dict] = None,
+        assets: Optional[list] = [{"data": None}],
+    ):
         """A simple way to generate a `CREATE` transaction.
 
         Note:

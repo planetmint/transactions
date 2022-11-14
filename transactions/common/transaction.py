@@ -31,7 +31,7 @@ from transactions.common.exceptions import (
     AssetIdMismatch,
 )
 from transactions.common.schema import validate_transaction_schema
-from transactions.common.utils import serialize, validate_txn_obj, validate_key, validate_language_key
+from transactions.common.utils import serialize
 from .memoize import memoize_from_dict, memoize_to_dict
 from .input import Input
 from .output import Output
@@ -175,7 +175,6 @@ class Transaction(object):
         self.script = script
         self._id = hash_id
         self.tx_dict = tx_dict
-
 
     @property
     def unspent_outputs(self):
@@ -520,7 +519,9 @@ class Transaction(object):
         return all(validate(i, cond) for i, cond in enumerate(output_condition_uris))
 
     @lru_cache(maxsize=16384)
-    def _input_valid(self, input_: Input, operation: str, message: str, output_condition_uri: Optional[str] = None) -> bool:
+    def _input_valid(
+        self, input_: Input, operation: str, message: str, output_condition_uri: Optional[str] = None
+    ) -> bool:
         """Validates a single Input against a single Output.
 
         Note:
@@ -782,10 +783,6 @@ class Transaction(object):
     @classmethod
     def validate_schema(cls, tx):
         validate_transaction_schema(tx)
-        validate_txn_obj(cls.ASSETS, tx[cls.ASSETS], cls.DATA, validate_key)
-        validate_txn_obj(cls.METADATA, tx, cls.METADATA, validate_key)
-        validate_language_key(tx[cls.ASSETS], cls.DATA)
-        validate_language_key(tx, cls.METADATA)
 
     @classmethod
     def complete_tx_i_o(self, tx_signers, recipients):
