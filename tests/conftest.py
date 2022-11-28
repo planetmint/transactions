@@ -7,7 +7,7 @@ import pytest
 import random
 
 from base58 import b58decode
-from cryptoconditions import ThresholdSha256, Ed25519Sha256
+from planetmint_cryptoconditions import ThresholdSha256, Ed25519Sha256
 from ipld import marshal, multihash
 from transactions.types.assets.create import Create
 

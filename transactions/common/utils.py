@@ -12,9 +12,9 @@ from typing import Callable
 
 # from planetmint.config import Config
 from transactions.common.exceptions import ValidationError
-from cryptoconditions import ThresholdSha256, Ed25519Sha256, ZenroomSha256, Fulfillment
+from planetmint_cryptoconditions import ThresholdSha256, Ed25519Sha256, ZenroomSha256, Fulfillment
 from transactions.common.exceptions import ThresholdTooDeep
-from cryptoconditions.exceptions import UnsupportedTypeError
+from planetmint_cryptoconditions.exceptions import UnsupportedTypeError
 
 VALID_LANGUAGES = (
     "danish",

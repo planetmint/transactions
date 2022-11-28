@@ -18,8 +18,8 @@ from typing import Optional
 import rapidjson
 
 import base58
-from cryptoconditions import Fulfillment, ThresholdSha256, Ed25519Sha256, ZenroomSha256
-from cryptoconditions.exceptions import ParsingError, ASN1DecodeError, ASN1EncodeError
+from planetmint_cryptoconditions import Fulfillment, ThresholdSha256, Ed25519Sha256, ZenroomSha256
+from planetmint_cryptoconditions.exceptions import ParsingError, ASN1DecodeError, ASN1EncodeError
 from cid import is_cid
 
 from hashlib import sha3_256
