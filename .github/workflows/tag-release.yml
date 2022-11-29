@@ -24,9 +24,6 @@ jobs:
       - name: Install dependencies
         run: poetry install --with dev 
 
-      - name: Test build
-        run: poetry build && poetry run twine check dist/*
-
       - name: Upload to TestPyPI
         run: |
           poetry build
