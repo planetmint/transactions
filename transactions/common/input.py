@@ -4,8 +4,8 @@
 # Code is Apache-2.0 and docs are CC-BY-4.0
 
 from typing import Optional
-from cryptoconditions import Fulfillment
-from cryptoconditions.exceptions import ASN1DecodeError, ASN1EncodeError
+from planetmint_cryptoconditions import Fulfillment
+from planetmint_cryptoconditions.exceptions import ASN1DecodeError, ASN1EncodeError
 
 from transactions.common.exceptions import InvalidSignature
 from .utils import _fulfillment_to_details, _fulfillment_from_details
@@ -19,7 +19,7 @@ class Input(object):
     Wraps around a Crypto-condition Fulfillment.
 
         Attributes:
-            fulfillment (:class:`cryptoconditions.Fulfillment`): A Fulfillment
+            fulfillment (:class:`planetmint_cryptoconditions.Fulfillment`): A Fulfillment
                 to be signed with a private key.
             owners_before (:obj:`list` of :obj:`str`): A list of owners after a
                 Transaction was confirmed.
@@ -32,7 +32,7 @@ class Input(object):
         """Create an instance of an :class:`~.Input`.
 
         Args:
-            fulfillment (:class:`cryptoconditions.Fulfillment`): A
+            fulfillment (:class:`planetmint_cryptoconditions.Fulfillment`): A
                 Fulfillment to be signed with a private key.
             owners_before (:obj:`list` of :obj:`str`): A list of owners
                 after a Transaction was confirmed.

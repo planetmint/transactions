@@ -7,8 +7,8 @@ from functools import reduce
 from typing import Union, Optional
 
 import base58
-from cryptoconditions import ThresholdSha256, Ed25519Sha256, ZenroomSha256
-from cryptoconditions import Fulfillment
+from planetmint_cryptoconditions import ThresholdSha256, Ed25519Sha256, ZenroomSha256
+from planetmint_cryptoconditions import Fulfillment
 
 from transactions.common.exceptions import AmountError
 from .utils import _fulfillment_to_details, _fulfillment_from_details
@@ -20,7 +20,7 @@ class Output(object):
     Wraps around a Crypto-condition Condition.
 
         Attributes:
-            fulfillment (:class:`cryptoconditions.Fulfillment`): A Fulfillment
+            fulfillment (:class:`planetmint_cryptoconditions.Fulfillment`): A Fulfillment
                 to extract a Condition from.
             public_keys (:obj:`list` of :obj:`str`, optional): A list of
                 owners before a Transaction was confirmed.
@@ -32,7 +32,7 @@ class Output(object):
         """Create an instance of a :class:`~.Output`.
 
         Args:
-            fulfillment (:class:`cryptoconditions.Fulfillment`): A
+            fulfillment (:class:`planetmint_cryptoconditions.Fulfillment`): A
                 Fulfillment to extract a Condition from.
             public_keys (:obj:`list` of :obj:`str`, optional): A list of
                 owners before a Transaction was confirmed.
@@ -148,13 +148,13 @@ class Output(object):
             :meth:`~.Output.generate`.
 
         Args:
-            initial (:class:`cryptoconditions.ThresholdSha256`):
+            initial (:class:`planetmint_cryptoconditions.ThresholdSha256`):
                 A Condition representing the overall root.
             new_public_keys (:obj:`list` of :obj:`str`|str): A list of new
                 owners or a single new owner.
 
         Returns:
-            :class:`cryptoconditions.ThresholdSha256`:
+            :class:`planetmint_cryptoconditions.ThresholdSha256`:
         """
         try:
             threshold = len(new_public_keys)

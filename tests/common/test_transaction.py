@@ -17,10 +17,10 @@ from transactions.common.transaction import Input
 from transactions.common.exceptions import AmountError
 from transactions.common.transaction import Transaction
 from transactions.common.transaction import TransactionLink
-from cryptoconditions import ThresholdSha256
-from cryptoconditions import Fulfillment
-from cryptoconditions import PreimageSha256
-from cryptoconditions import Ed25519Sha256
+from planetmint_cryptoconditions import ThresholdSha256
+from planetmint_cryptoconditions import Fulfillment
+from planetmint_cryptoconditions import PreimageSha256
+from planetmint_cryptoconditions import Ed25519Sha256
 from pytest import mark, raises
 
 try:

@@ -6,7 +6,7 @@
 # Separate all crypto code so that we can easily test several implementations
 from collections import namedtuple
 from hashlib import sha3_256
-from cryptoconditions import crypto
+from planetmint_cryptoconditions import crypto
 
 
 CryptoKeypair = namedtuple("CryptoKeypair", ("private_key", "public_key"))
