@@ -327,6 +327,32 @@ class Transaction(object):
 
         return self
 
+    def delegate_signing(self, callback):
+        """Fulfills a previous Transaction's Output by signing Inputs using callback.
+
+        Note:
+            This method works only for the following Cryptoconditions
+            currently:
+                - Ed25519Fulfillment
+        Args:
+            callback (function): A callback used to sign inputs. Callback
+                takes input dict and message to sign as arguments
+                and returns signature (bytes).
+        Returns:
+            :class:`~planetmint.common.transaction.Transaction`
+        """
+        tx_dict = self.to_dict()
+        tx_dict = Transaction._remove_signatures(tx_dict)
+        tx_serialized = Transaction._to_str(tx_dict)
+        message = sha3_256(tx_serialized.encode())
+        for input_ in self.inputs:
+            if input_.fulfills:
+                message.update("{}{}".format(input_.fulfills.txid, input_.fulfills.output).encode())
+            signature = callback(input_.to_dict(), message.digest())
+            input_.fulfillment.signature = signature
+        self._hash()
+        return self
+
     @classmethod
     def _sign_input(cls, input_: Input, message: str, key_pairs: dict) -> Input:
         """Signs a single Input.

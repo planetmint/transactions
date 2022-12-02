@@ -50,7 +50,7 @@ def memoize_to_dict(func: Callable):
     @functools.wraps(func)
     def memoized_func(*args, **kwargs):
 
-        if args[0].id:
+        if len(args) > 0 and args[0] and args[0].id:
             return to_dict(func, ToDictWrapper(args[0]))
         else:
             return func(*args, **kwargs)
