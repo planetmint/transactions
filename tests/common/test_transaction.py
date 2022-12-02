@@ -437,6 +437,39 @@ def test_validate_tx_simple_create_signature(user_input, user_output, user_priv,
     validate_transaction_model(tx)
 
 
+def test_validate_tx_simple_create_signature_signing_delegation(user_input, user_output, user_priv, asset_definition):
+    from .utils import validate_transaction_model
+
+    # create TX & sign to have a reference signature
+    tx = Transaction(Transaction.CREATE, asset_definition, [user_input], [user_output])
+    expected = deepcopy(user_output)
+    tx_dict = tx.to_dict()
+    tx_dict["inputs"][0]["fulfillment"] = None
+    serialized_tx = json.dumps(tx_dict, sort_keys=True, separators=(",", ":"), ensure_ascii=True)
+    message = sha3_256(serialized_tx.encode()).digest()
+    expected.fulfillment.sign(message, b58decode(user_priv))
+    tx.sign([user_priv])
+    signature = tx.inputs[0].fulfillment.signature
+
+    def signing_callback(message, digest):
+        return signature
+
+    # recreate the same TX and sign via the signing callback
+    tx = Transaction(Transaction.CREATE, asset_definition, [user_input], [user_output])
+    expected = deepcopy(user_output)
+    tx_dict = tx.to_dict()
+    tx_dict["inputs"][0]["fulfillment"] = None
+    serialized_tx = json.dumps(tx_dict, sort_keys=True, separators=(",", ":"), ensure_ascii=True)
+    message = sha3_256(serialized_tx.encode()).digest()
+    expected.fulfillment.sign(message, b58decode(user_priv))
+
+    tx.delegate_signing(signing_callback)
+    assert tx.inputs[0].to_dict()["fulfillment"] == expected.fulfillment.serialize_uri()
+    assert tx.inputs_valid() is True
+
+    validate_transaction_model(tx)
+
+
 def test_invoke_simple_signature_fulfillment_with_invalid_params(utx, user_input):
     from transactions.common.exceptions import KeypairMismatchException
 
