@@ -506,7 +506,7 @@ class Transaction(object):
             #       greatly, as we do not have to check against `None` values.
             return self._inputs_valid(["dummyvalue" for _ in self.inputs])
         elif self.operation == self.TRANSFER:
-            return self._inputs_valid([output.fulfillment.condition_uri for output in outputs])
+            return self._inputs_valid([output.condition.uri for output in outputs])
         elif self.operation == self.VALIDATOR_ELECTION:
             return self._inputs_valid(["dummyvalue" for _ in self.inputs])
         elif self.operation == self.CHAIN_MIGRATION_ELECTION:
