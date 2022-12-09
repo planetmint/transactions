@@ -776,6 +776,7 @@ class Transaction(object):
         if proposed_tx_id != valid_tx_id:
             err_msg = "The transaction's id '{}' isn't equal to " "the hash of its body, i.e. it's not valid."
             raise InvalidHash(err_msg.format(proposed_tx_id))
+        return True
 
     @classmethod
     @memoize_from_dict

@@ -22,6 +22,7 @@ from planetmint_cryptoconditions import Fulfillment
 from planetmint_cryptoconditions import PreimageSha256
 from planetmint_cryptoconditions import Ed25519Sha256
 from pytest import mark, raises
+from transactions.common.exceptions import InvalidHash
 
 try:
     from hashlib import sha3_256
@@ -937,16 +938,20 @@ def test_spent_outputs_property(signed_transfer_tx):
 
 def test_v2_0_transaction_from_dict_create(signed_2_0_create_tx):
     transaction = Transaction.from_dict(signed_2_0_create_tx)
-    assert isinstance(transaction.assets, dict)
     mydict = transaction.to_dict()
+    assert mydict == signed_2_0_create_tx
+    assert Transaction.validate_id(mydict) == True
+    assert isinstance(transaction.assets, dict)
     assert isinstance(mydict["asset"], dict)
 
 
 # seems to be a strange test case: Attention: this test cases exists
 # as planetmint node internally only works with 'assets' tag.
 # nevertheless: recreating the object returns a 'asset' tag
-def test_v2_0_transaction_from_dict_create(signed_2_0_create_tx_assets):
+def test_v2_0_transaction_from_dict_create_assets(signed_2_0_create_tx_assets):
     transaction = Transaction.from_dict(signed_2_0_create_tx_assets)
+    with raises(InvalidHash):
+        Transaction.validate_id(signed_2_0_create_tx_assets)
     assert isinstance(transaction.assets, dict)
     mydict = transaction.to_dict()
     assert isinstance(mydict["asset"], dict)
@@ -954,6 +959,8 @@ def test_v2_0_transaction_from_dict_create(signed_2_0_create_tx_assets):
 
 def test_v2_0_transaction_from_dict_transfer(signed_2_0_transfer_tx):
     transaction = Transaction.from_dict(signed_2_0_transfer_tx)
-    assert isinstance(transaction.assets, dict)
     mydict = transaction.to_dict()
+    assert mydict == signed_2_0_transfer_tx
+    assert Transaction.validate_id(mydict) == True
+    assert isinstance(transaction.assets, dict)
     assert isinstance(mydict["asset"], dict)
