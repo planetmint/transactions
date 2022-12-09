@@ -61,6 +61,19 @@ def test_validate_transaction_signed_transfer(signed_transfer_tx):
     validate_transaction_schema(signed_transfer_tx.to_dict())
 
 
+def test_validate_transaction_2_0_signed_create(signed_2_0_create_tx):
+    validate_transaction_schema(signed_2_0_create_tx)
+
+
+def test_validate_transaction_2_0_signed_create(signed_2_0_create_tx_assets):
+    with raises(SchemaValidationError):
+        validate_transaction_schema(signed_2_0_create_tx_assets)
+
+
+def test_validate_transaction_2_0_signed_transfer(signed_2_0_transfer_tx):
+    validate_transaction_schema(signed_2_0_transfer_tx)
+
+
 def test_validate_transaction_fails():
     with raises(SchemaValidationError):
         validate_transaction_schema({})

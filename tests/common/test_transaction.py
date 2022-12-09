@@ -922,8 +922,38 @@ def test_unspent_outputs_property(merlin, alice, bob, carol):
 def test_spent_outputs_property(signed_transfer_tx):
     spent_outputs = list(signed_transfer_tx.spent_outputs)
     tx = signed_transfer_tx.to_dict()
+    from transactions.common.transaction import Transaction
+    from transactions.common.schema import validate_transaction_schema
+
+    validate_transaction_schema(tx)
+    Transaction.from_dict(tx)
+
     assert len(spent_outputs) == 1
     spent_output = spent_outputs[0]
     assert spent_output["transaction_id"] == tx["inputs"][0]["fulfills"]["transaction_id"]
     assert spent_output["output_index"] == tx["inputs"][0]["fulfills"]["output_index"]
     # assert spent_output._asdict() == tx['inputs'][0]['fulfills']
+
+
+def test_v2_0_transaction_from_dict_create(signed_2_0_create_tx):
+    transaction = Transaction.from_dict(signed_2_0_create_tx)
+    assert isinstance(transaction.assets, dict)
+    mydict = transaction.to_dict()
+    assert isinstance(mydict["asset"], dict)
+
+
+# seems to be a strange test case: Attention: this test cases exists
+# as planetmint node internally only works with 'assets' tag.
+# nevertheless: recreating the object returns a 'asset' tag
+def test_v2_0_transaction_from_dict_create(signed_2_0_create_tx_assets):
+    transaction = Transaction.from_dict(signed_2_0_create_tx_assets)
+    assert isinstance(transaction.assets, dict)
+    mydict = transaction.to_dict()
+    assert isinstance(mydict["asset"], dict)
+
+
+def test_v2_0_transaction_from_dict_transfer(signed_2_0_transfer_tx):
+    transaction = Transaction.from_dict(signed_2_0_transfer_tx)
+    assert isinstance(transaction.assets, dict)
+    mydict = transaction.to_dict()
+    assert isinstance(mydict["asset"], dict)

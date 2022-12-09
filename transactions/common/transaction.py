@@ -128,17 +128,25 @@ class Transaction(object):
         # dicts holding a `data` property. Asset payloads for 'TRANSFER'
         # operations must be dicts holding an `id` property.
         if operation == self.CREATE and assets is not None:
-            if not isinstance(assets, list):
-                raise TypeError(
-                    (
-                        "`asset` must be None or a list holding dicts"
-                        " property instance for '{}' Transactions".format(operation)
+            asset = None
+            if not version or version != "2.0":
+                if not isinstance(assets, list):
+                    raise TypeError(
+                        (
+                            "`asset` must be None or a list holding dicts"
+                            " property instance for '{}' Transactions".format(operation)
+                        )
                     )
-                )
-
-            if "data" in assets[0]:
-                if assets[0]["data"] is not None and not isinstance(assets[0]["data"], str):
-                    if is_cid(assets[0]["data"]) == False:
+                asset = assets[0]
+            else:
+                if not isinstance(assets, dict):
+                    raise TypeError(
+                        ("`asset` must be None or a dict" " property instance for '{}' Transactions".format(operation))
+                    )
+                asset = assets
+            if asset and "data" in asset:
+                if asset["data"] is not None and not isinstance(asset["data"], str):
+                    if is_cid(asset["data"]) == False:
                         raise TypeError("`assets[0].data` not valid CID")
 
                     raise TypeError(
@@ -148,8 +156,15 @@ class Transaction(object):
                         )
                     )
 
-        elif operation == self.TRANSFER and not (isinstance(assets, list) and "id" in assets[0]):
-            raise TypeError(("`asset` must be a dict holding an `id` property " "for 'TRANSFER' Transactions"))
+        elif operation == self.TRANSFER:
+            if not version or version != "2.0":
+                if not (isinstance(assets, list) and "id" in assets[0]):
+                    raise TypeError(
+                        ("`assets` must be a list of dicts holding an `id` property " "for 'TRANSFER' Transactions")
+                    )
+            else:
+                if not (isinstance(assets, dict) and "id" in assets):
+                    raise TypeError(("`asset` must be a dict holding an `id` property " "for 'TRANSFER' Transactions"))
 
         if outputs and not isinstance(outputs, list):
             raise TypeError("`outputs` must be a list instance or None")
@@ -166,7 +181,7 @@ class Transaction(object):
         if script is not None and not isinstance(script, dict):
             raise TypeError("`script` must be a dict or None")
 
-        self.version = version if version is not None else self.VERSION
+        self.version = version if version is not None else Transaction.VERSION
         self.operation = operation
         self.assets = assets
         self.inputs = inputs or []
@@ -175,6 +190,29 @@ class Transaction(object):
         self.script = script
         self._id = hash_id
         self.tx_dict = tx_dict
+
+    @staticmethod
+    def get_assets_tag(version):
+        return "assets" if version != "2.0" else "asset"
+
+    @staticmethod
+    def get_asset_obj(tx: dict):
+        asset_obj = None
+        if tx["version"] != "2.0":
+            asset_obj = tx["assets"]
+        else:
+            try:
+                asset_obj = tx["asset"]
+            except KeyError:
+                asset_obj = tx["assets"]
+        return asset_obj
+
+    @classmethod
+    def get_asset_id(tx):
+        if not tx.version or tx.version != "2.0":
+            return tx.assets[0]["id"]
+        else:
+            return tx.assets["id"]
 
     @property
     def unspent_outputs(self):
@@ -185,7 +223,7 @@ class Transaction(object):
         if self.operation == self.CREATE:
             self._asset_id = self._id
         elif self.operation == self.TRANSFER:
-            self._asset_id = self.assets[0]["id"]
+            self._asset_id = Transaction.get_asset_id(self)
         return (
             UnspentOutput(
                 transaction_id=self._id,
@@ -621,15 +659,17 @@ class Transaction(object):
         Returns:
             dict: The Transaction as an alternative serialization format.
         """
+        asset_tag = Transaction.get_assets_tag(self.version)
         tx_dict = {
             "inputs": [input_.to_dict() for input_ in self.inputs],
             "outputs": [output.to_dict() for output in self.outputs],
             "operation": str(self.operation),
             "metadata": self.metadata,
-            "assets": self.assets,
+            asset_tag: self.assets,
             "version": self.version,
             "id": self._id,
         }
+
         if self.script:
             tx_dict["script"] = self.script
         return tx_dict
@@ -704,10 +744,11 @@ class Transaction(object):
 
         # create a set of the transactions' asset ids
         asset_ids = {
-            tx.id if tx.operation in [tx.CREATE, tx.VALIDATOR_ELECTION] else tx.assets[0]["id"] for tx in transactions
+            tx.id if tx.operation in [tx.CREATE, tx.VALIDATOR_ELECTION] else Transaction.get_asset_id(tx)
+            for tx in transactions
         }
 
-        # check that all the transasctions have the same asset id
+        # check that all the transactions have the same asset id
         if len(asset_ids) > 1:
             raise AssetIdMismatch(("All inputs of all transactions passed" " need to have the same asset id"))
         return asset_ids.pop()
@@ -755,18 +796,18 @@ class Transaction(object):
             id = tx["id"]
         except KeyError:
             id = None
-        # tx['asset'] = tx['asset'][0] if isinstance( tx['asset'], list) or isinstance( tx['asset'], tuple) else tx['asset'],  # noqa: E501
+        asset_tag = Transaction.get_assets_tag(tx["version"])
+        asset_obj = Transaction.get_asset_obj(tx)
         local_dict = {
             "inputs": tx["inputs"],
             "outputs": tx["outputs"],
             "operation": operation,
             "metadata": tx["metadata"],
-            "assets": tx[
-                "assets"
-            ],  # [0] if isinstance( tx['asset'], list) or isinstance( tx['asset'], tuple) else tx['asset'],  # noqa: E501
+            asset_tag: asset_obj,
             "version": tx["version"],
             "id": id,
         }
+
         try:
             script_ = tx["script"]
             script_dict = {"script": script_}
@@ -782,9 +823,10 @@ class Transaction(object):
 
         inputs = [Input.from_dict(input_) for input_ in tx["inputs"]]
         outputs = [Output.from_dict(output) for output in tx["outputs"]]
+        asset_obj = Transaction.get_asset_obj(tx)
         return cls(
             tx["operation"],
-            tx["assets"],
+            asset_obj,
             inputs,
             outputs,
             tx["metadata"],
