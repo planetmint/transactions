@@ -378,29 +378,29 @@ def signed_2_0_create_tx():
     return {
         "inputs": [
             {
-                "owners_before": ["E9iwLjakBJtWGWvRRwi39L3z341pmq8X4GuJyZPZ3x1T"],
+                "owners_before": ["5V4AANHTSLdQH1mEA1pohW3jMduY9xMJ1voos7gRfMQF"],
                 "fulfills": None,
-                "fulfillment": "pGSAIMNj_qX5E_xk428K0Oc4Ik1MNn_ln_u-jIggdg-ynOXmgUBLy7Dboqcik5lAw3bSgyiPF77C5ohNu6YS6WkDnFca-E-4rDoReOgLz-SmvSmktd763EBJTKjVTsQXggBpLY0K",
+                "fulfillment": "pGSAIEKelMEu8AzcA9kcDLrsEXhSpZG-lf2c9CuZpzZU_ONkgUBMztcnweWqwHVfVk9Y-IRgfdh864yXYTrTKzSMy6uvNjQeLtGzKxz4gjb01NUu6WLvZBAvr0Ws4glfxKiDLjkP",
             }
         ],
         "outputs": [
             {
-                "public_keys": ["E9iwLjakBJtWGWvRRwi39L3z341pmq8X4GuJyZPZ3x1T"],
+                "public_keys": ["5V4AANHTSLdQH1mEA1pohW3jMduY9xMJ1voos7gRfMQF"],
                 "condition": {
                     "details": {
                         "type": "ed25519-sha-256",
-                        "public_key": "E9iwLjakBJtWGWvRRwi39L3z341pmq8X4GuJyZPZ3x1T",
+                        "public_key": "5V4AANHTSLdQH1mEA1pohW3jMduY9xMJ1voos7gRfMQF",
                     },
-                    "uri": "ni:///sha-256;sy10qWh8LW4JxhlHBZ1oYZo-t2DjY90YVy2BsGg-K3M?fpt=ed25519-sha-256&cost=131072",
+                    "uri": "ni:///sha-256;M3l9yVs7ItjP-lxT7B2ta6rpRa-GHt6TBSYpy8l-IS8?fpt=ed25519-sha-256&cost=131072",
                 },
                 "amount": "3000",
             }
         ],
         "operation": "CREATE",
-        "metadata": None,
+        "metadata": "QmRBri4SARi56PgB2ALFVjHsLhQDUh4jYbeiHaU94vLoxd",
         "asset": {"data": "QmW5GVMW98D3mktSDfWHS8nX2UiCd8gP1uCiujnFX4yK8n"},
         "version": "2.0",
-        "id": "ee9b031b61a3b7eaa63728ace4a4e08d21e69ba38d0cb90596aec198b970926b",
+        "id": "3e2a2c5eef5e6a0c4e1e5f8d0dc1d3d9b4f035592a9788f8bfa7d59f86d123d3",
     }
 
 
@@ -409,29 +409,29 @@ def signed_2_0_create_tx_assets():
     return {
         "inputs": [
             {
-                "owners_before": ["E9iwLjakBJtWGWvRRwi39L3z341pmq8X4GuJyZPZ3x1T"],
+                "owners_before": ["5V4AANHTSLdQH1mEA1pohW3jMduY9xMJ1voos7gRfMQF"],
                 "fulfills": None,
-                "fulfillment": "pGSAIMNj_qX5E_xk428K0Oc4Ik1MNn_ln_u-jIggdg-ynOXmgUBLy7Dboqcik5lAw3bSgyiPF77C5ohNu6YS6WkDnFca-E-4rDoReOgLz-SmvSmktd763EBJTKjVTsQXggBpLY0K",
+                "fulfillment": "pGSAIEKelMEu8AzcA9kcDLrsEXhSpZG-lf2c9CuZpzZU_ONkgUBMztcnweWqwHVfVk9Y-IRgfdh864yXYTrTKzSMy6uvNjQeLtGzKxz4gjb01NUu6WLvZBAvr0Ws4glfxKiDLjkP",
             }
         ],
         "outputs": [
             {
-                "public_keys": ["E9iwLjakBJtWGWvRRwi39L3z341pmq8X4GuJyZPZ3x1T"],
+                "public_keys": ["5V4AANHTSLdQH1mEA1pohW3jMduY9xMJ1voos7gRfMQF"],
                 "condition": {
                     "details": {
                         "type": "ed25519-sha-256",
-                        "public_key": "E9iwLjakBJtWGWvRRwi39L3z341pmq8X4GuJyZPZ3x1T",
+                        "public_key": "5V4AANHTSLdQH1mEA1pohW3jMduY9xMJ1voos7gRfMQF",
                     },
-                    "uri": "ni:///sha-256;sy10qWh8LW4JxhlHBZ1oYZo-t2DjY90YVy2BsGg-K3M?fpt=ed25519-sha-256&cost=131072",
+                    "uri": "ni:///sha-256;M3l9yVs7ItjP-lxT7B2ta6rpRa-GHt6TBSYpy8l-IS8?fpt=ed25519-sha-256&cost=131072",
                 },
                 "amount": "3000",
             }
         ],
         "operation": "CREATE",
-        "metadata": None,
+        "metadata": "QmRBri4SARi56PgB2ALFVjHsLhQDUh4jYbeiHaU94vLoxd",
         "assets": {"data": "QmW5GVMW98D3mktSDfWHS8nX2UiCd8gP1uCiujnFX4yK8n"},
         "version": "2.0",
-        "id": "ee9b031b61a3b7eaa63728ace4a4e08d21e69ba38d0cb90596aec198b970926b",
+        "id": "3e2a2c5eef5e6a0c4e1e5f8d0dc1d3d9b4f035592a9788f8bfa7d59f86d123d3",
     }
 
 

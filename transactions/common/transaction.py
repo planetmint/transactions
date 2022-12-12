@@ -207,8 +207,8 @@ class Transaction(object):
                 asset_obj = tx["assets"]
         return asset_obj
 
-    @classmethod
-    def get_asset_id(tx):
+    @staticmethod
+    def read_out_asset_id(tx):
         if not tx.version or tx.version != "2.0":
             return tx.assets[0]["id"]
         else:
@@ -223,7 +223,7 @@ class Transaction(object):
         if self.operation == self.CREATE:
             self._asset_id = self._id
         elif self.operation == self.TRANSFER:
-            self._asset_id = Transaction.get_asset_id(self)
+            self._asset_id = Transaction.read_out_asset_id(self)
         return (
             UnspentOutput(
                 transaction_id=self._id,
@@ -744,7 +744,7 @@ class Transaction(object):
 
         # create a set of the transactions' asset ids
         asset_ids = {
-            tx.id if tx.operation in [tx.CREATE, tx.VALIDATOR_ELECTION] else Transaction.get_asset_id(tx)
+            tx.id if tx.operation in [tx.CREATE, tx.VALIDATOR_ELECTION] else Transaction.read_out_asset_id(tx)
             for tx in transactions
         }
 
@@ -776,6 +776,7 @@ class Transaction(object):
         if proposed_tx_id != valid_tx_id:
             err_msg = "The transaction's id '{}' isn't equal to " "the hash of its body, i.e. it's not valid."
             raise InvalidHash(err_msg.format(proposed_tx_id))
+        return True
 
     @classmethod
     @memoize_from_dict
