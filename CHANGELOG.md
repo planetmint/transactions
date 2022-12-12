@@ -4,6 +4,17 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.4.1] - 2022-12-12
+### Fixed
+- fixed a naming collision within the transaction class that lead to an recursive call
+
+## [0.4.0] - 2022-12-09
+### Added
+- support to validate v2.0 and v3.0 transaction schemes
+
+## [0.3.0] - 2022-12-02
+### Added
+- added delegated signing support (callback calling)
 
 ## [0.2.2] - 2022-11-28
 ### Fixed

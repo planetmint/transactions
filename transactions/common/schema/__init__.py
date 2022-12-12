@@ -28,6 +28,7 @@ def _load_schema(name, version, path=__file__):
 
 # TODO: make this an env var from a config file
 TX_SCHEMA_VERSION = "v3.0"
+TX_SCHEMA_VERSION_2_0 = "v2.0"
 
 TX_SCHEMA_PATH, TX_SCHEMA_COMMON = _load_schema("transaction", TX_SCHEMA_VERSION)
 _, TX_SCHEMA_CREATE = _load_schema("transaction_create", TX_SCHEMA_VERSION)
@@ -38,6 +39,17 @@ _, TX_SCHEMA_VALIDATOR_ELECTION = _load_schema("transaction_validator_election",
 _, TX_SCHEMA_CHAIN_MIGRATION_ELECTION = _load_schema("transaction_chain_migration_election", TX_SCHEMA_VERSION)
 
 _, TX_SCHEMA_VOTE = _load_schema("transaction_vote", TX_SCHEMA_VERSION)
+
+
+TX_SCHEMA_PATH_2_0, TX_SCHEMA_COMMON_2_0 = _load_schema("transaction", TX_SCHEMA_VERSION_2_0)
+_, TX_SCHEMA_CREATE_2_0 = _load_schema("transaction_create", TX_SCHEMA_VERSION_2_0)
+_, TX_SCHEMA_TRANSFER_2_0 = _load_schema("transaction_transfer", TX_SCHEMA_VERSION_2_0)
+
+_, TX_SCHEMA_VALIDATOR_ELECTION_2_0 = _load_schema("transaction_validator_election", TX_SCHEMA_VERSION_2_0)
+
+_, TX_SCHEMA_CHAIN_MIGRATION_ELECTION_2_0 = _load_schema("transaction_chain_migration_election", TX_SCHEMA_VERSION_2_0)
+
+_, TX_SCHEMA_VOTE_2_0 = _load_schema("transaction_vote", TX_SCHEMA_VERSION_2_0)
 
 
 def _validate_schema(schema, body):
@@ -71,8 +83,18 @@ def validate_transaction_schema(tx):
     TX_SCHEMA_COMMON contains properties that are common to all types of
     transaction. TX_SCHEMA_[TRANSFER|CREATE] add additional constraints on top.
     """
-    _validate_schema(TX_SCHEMA_COMMON, tx)
-    if tx["operation"] == "TRANSFER":
-        _validate_schema(TX_SCHEMA_TRANSFER, tx)
-    else:
-        _validate_schema(TX_SCHEMA_CREATE, tx)
+    try:
+        if tx["version"] == "3.0":
+            _validate_schema(TX_SCHEMA_COMMON, tx)
+            if tx["operation"] == "TRANSFER":
+                _validate_schema(TX_SCHEMA_TRANSFER, tx)
+            else:
+                _validate_schema(TX_SCHEMA_CREATE, tx)
+        else:
+            _validate_schema(TX_SCHEMA_COMMON_2_0, tx)
+            if tx["operation"] == "TRANSFER":
+                _validate_schema(TX_SCHEMA_TRANSFER_2_0, tx)
+            else:
+                _validate_schema(TX_SCHEMA_CREATE_2_0, tx)
+    except KeyError:
+        raise SchemaValidationError()

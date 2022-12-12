@@ -10,6 +10,8 @@ from transactions.common.schema import (
     TX_SCHEMA_COMMON,
     TX_SCHEMA_TRANSFER,
     TX_SCHEMA_VOTE,
+    TX_SCHEMA_COMMON_2_0,
+    TX_SCHEMA_TRANSFER_2_0,
 )
 
 
@@ -34,6 +36,13 @@ class Vote(Transfer):
         """Validate the validator election vote transaction. Since `VOTE` extends `TRANSFER`
         transaction, all the validations for `CREATE` transaction should be inherited
         """
-        _validate_schema(TX_SCHEMA_COMMON, tx)
-        _validate_schema(TX_SCHEMA_TRANSFER, tx)
+        try:
+            if tx["version"] == "3.0":
+                _validate_schema(TX_SCHEMA_COMMON, tx)
+                _validate_schema(TX_SCHEMA_TRANSFER, tx)
+            else:
+                _validate_schema(TX_SCHEMA_COMMON_2_0, tx)
+                _validate_schema(TX_SCHEMA_TRANSFER_2_0, tx)
+        except KeyError:
+            raise SchemaValidationError()
         _validate_schema(cls.TX_SCHEMA_CUSTOM, tx)

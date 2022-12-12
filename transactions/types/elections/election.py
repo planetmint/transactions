@@ -7,7 +7,7 @@ from uuid import uuid4
 from typing import Optional
 
 from transactions.common.transaction import Transaction
-from transactions.common.schema import _validate_schema, TX_SCHEMA_COMMON
+from transactions.common.schema import _validate_schema, TX_SCHEMA_COMMON, TX_SCHEMA_COMMON_2_0
 
 
 class Election(Transaction):
@@ -63,6 +63,13 @@ class Election(Transaction):
         """Validate the election transaction. Since `ELECTION` extends `CREATE` transaction, all the validations for
         `CREATE` transaction should be inherited
         """
-        _validate_schema(TX_SCHEMA_COMMON, tx)
+        try:
+            if tx["version"] == "3.0":
+                _validate_schema(TX_SCHEMA_COMMON, tx)
+            else:
+                _validate_schema(TX_SCHEMA_COMMON_2_0, tx)
+        except KeyError:
+            raise SchemaValidationError()
+
         if cls.TX_SCHEMA_CUSTOM:
             _validate_schema(cls.TX_SCHEMA_CUSTOM, tx)

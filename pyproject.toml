@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "planetmint-transactions"
-version = "0.3.0"
+version = "0.4.1"
 description = "Python implementation of the planetmint transactions spec"
 authors = ["Lorenz Herzberger <lorenzherzberger@gmail.com>"]
 readme = "README.md"
