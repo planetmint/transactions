@@ -28,3 +28,8 @@ jobs:
         run: |
           poetry build
           poetry publish -u __token__ -p ${{ secrets.PYPI_TOKEN }}
+
+      - name: Upload to GitHub
+        uses: softprops/action-gh-release@v1
+        with:
+          files: dist/*
