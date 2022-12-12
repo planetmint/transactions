@@ -1,6 +1,6 @@
-
+---
 name: Deploy packages
-on: 
+on:
   push:
     tags:
       - '*'
@@ -12,7 +12,7 @@ jobs:
     steps:
       - name: Check out repository code
         uses: actions/checkout@v3
-      
+
       - name: Setup python
         uses: actions/setup-python@v4
         with:
@@ -22,9 +22,9 @@ jobs:
         uses: Gr1N/setup-poetry@v7
 
       - name: Install dependencies
-        run: poetry install --with dev 
+        run: poetry install --with dev
 
-      - name: Upload to TestPyPI
+      - name: Upload to PyPI
         run: |
           poetry build
           poetry publish -u __token__ -p ${{ secrets.PYPI_TOKEN }}
