@@ -471,12 +471,12 @@ def test_validate_tx_simple_create_signature_signing_delegation(user_input, user
     validate_transaction_model(tx)
 
 
-def test_invoke_simple_signature_fulfillment_with_invalid_params(utx, user_input):
+def test_invoke_ed25519_signature_fulfillment_with_invalid_params(utx, user_input):
     from transactions.common.exceptions import KeypairMismatchException
 
     with raises(KeypairMismatchException):
         invalid_key_pair = {"wrong_pub_key": "wrong_priv_key"}
-        utx._sign_simple_signature_fulfillment(user_input, "somemessage", invalid_key_pair)
+        utx._sign_ed25519_signature_fulfillment(user_input, "somemessage", invalid_key_pair)
 
 
 def test_sign_threshold_with_invalid_params(utx, user_user2_threshold_input, user3_pub, user3_priv):
