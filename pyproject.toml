@@ -10,7 +10,7 @@ packages = [
 
 [tool.poetry.dependencies]
 python = "^3.9"
-planetmint-cryptoconditions = "^1.0.0"
+planetmint-cryptoconditions = "^1.1.0"
 base58 = "^2.1.1"
 planetmint-py-cid = "^0.4.2"
 planetmint-ipld = "^0.0.3"
