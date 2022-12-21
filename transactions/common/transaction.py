@@ -408,7 +408,7 @@ class Transaction(object):
             key_pairs (dict): The keys to sign the Transaction with.
         """
         if isinstance(input_.fulfillment, Ed25519Sha256):
-            return cls._sign_simple_signature_fulfillment(input_, message, key_pairs)
+            return cls._sign_ed25519_signature_fulfillment(input_, message, key_pairs)
         elif isinstance(input_.fulfillment, ThresholdSha256):
             return cls._sign_threshold_signature_fulfillment(input_, message, key_pairs)
         elif isinstance(input_.fulfillment, ZenroomSha256):
@@ -447,7 +447,7 @@ class Transaction(object):
         return input_
 
     @classmethod
-    def _sign_simple_signature_fulfillment(cls, input_: Input, message: str, key_pairs: dict) -> Input:
+    def _sign_ed25519_signature_fulfillment(cls, input_: Input, message: str, key_pairs: dict) -> Input:
         """Signs a Ed25519Fulfillment.
 
         Args:

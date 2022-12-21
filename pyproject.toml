@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "planetmint-transactions"
-version = "0.4.2"
+version = "0.5.0"
 description = "Python implementation of the planetmint transactions spec"
 authors = ["Lorenz Herzberger <lorenzherzberger@gmail.com>"]
 readme = "README.md"
@@ -18,14 +18,10 @@ python-rapidjson = "^1.8"
 jsonschema = "^4.16.0"
 PyYAML = "^6.0"
 
-
-[tool.poetry.group.test.dependencies]
-hypothesis = "^6.54.6"
-pytest = "^7.1.3"
-
-
 [tool.poetry.group.dev.dependencies]
 black = {version = "^22.10.0", allow-prereleases = true}
+hypothesis = "^6.54.6"
+pytest = "^7.1.3"
 
 [build-system]
 requires = ["poetry-core"]

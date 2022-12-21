@@ -211,7 +211,7 @@ python-versions = ">=3.7"
 
 [[package]]
 name = "planetmint-cryptoconditions"
-version = "1.0.0"
+version = "1.1.0"
 description = "Multi-algorithm, multi-level, multi-signature format for expressing conditions and fulfillments according to the Interledger Protocol (ILP)."
 category = "main"
 optional = false
@@ -223,6 +223,10 @@ cryptography = "3.4.7"
 pyasn1 = "0.4.8"
 PyNaCl = "1.4.0"
 zenroom = ">=2.3.1,<3.0.0"
+
+[package.source]
+type = "file"
+url = "../cryptoconditions/dist/planetmint_cryptoconditions-1.1.0-py3-none-any.whl"
 
 [[package]]
 name = "planetmint-ipld"
@@ -505,7 +509,7 @@ test = ["pytest", "schema"]
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.9"
-content-hash = "6ae477c39e80e1970b3488b5ef5c8aa3a580f4eba93b764b894c8ea1c9e8ea74"
+content-hash = "06febc1280f46161e62ab00898895c46fc8b0ab41f8940e20b0b46db34e22957"
 
 [metadata.files]
 attrs = [
@@ -668,8 +672,7 @@ pathspec = [
     {file = "pathspec-0.10.2.tar.gz", hash = "sha256:8f6bf73e5758fd365ef5d58ce09ac7c27d2833a8d7da51712eac6e27e35141b0"},
 ]
 planetmint-cryptoconditions = [
-    {file = "planetmint_cryptoconditions-1.0.0-py3-none-any.whl", hash = "sha256:d2e2b411635bb7a1934908072bd726d0fd14a9367cddb6f9f9e2720999752aeb"},
-    {file = "planetmint_cryptoconditions-1.0.0.tar.gz", hash = "sha256:1b43156d7391f9bbb0b124aa3acf16fed4287cd7ecdd792da6fa5415358effde"},
+    {file = "planetmint_cryptoconditions-1.1.0-py3-none-any.whl", hash = "sha256:7db3bb8d948aa1801b3d34787bef5e6fafc280703d6f8a18f6e3b63f2dede694"},
 ]
 planetmint-ipld = [
     {file = "planetmint-ipld-0.0.3.tar.gz", hash = "sha256:6effc20e671e01366cb579663809759c6c4ea1ec8e6bcb9278768cd3f7f64243"},

@@ -4,6 +4,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+
+## [0.5.0] - 2022-12-12
+### Fixed
+- renamed method from _simple_ to _ed25519_ (a more expressive and speaking name)
+- added planetmint-cryptocondition dependency to 1.1.0 avoiding the "keyring" inconsistency of zenroom contracts (sign vs. execute)
+- simplified package management by merging test-group into dev-group
+
 ## [0.4.1] - 2022-12-12
 ### Fixed
 - fixed a naming collision within the transaction class that lead to an recursive call
