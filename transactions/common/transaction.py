@@ -520,7 +520,7 @@ class Transaction(object):
                 subffill.sign(sha3_message.digest(), base58.b58decode(private_key.encode()))
         return input_
 
-    def inputs_valid(self, outputs=None) -> bool:
+    def inputs_valid(self, outputs:Output = None) -> bool:
         """Validates the Inputs in the Transaction against given
         Outputs.
 
