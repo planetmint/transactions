@@ -853,8 +853,9 @@ class Transaction(object):
     def validate_schema(cls, tx):
         validate_transaction_schema(tx)
 
+    # NOTE: only used for CREATE transactions
     @classmethod
-    def complete_tx_i_o(self, tx_signers, recipients):
+    def complete_tx_i_o(cls, tx_signers, recipients):
         inputs = []
         outputs = []
 

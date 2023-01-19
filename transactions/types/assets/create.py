@@ -16,7 +16,7 @@ class Create(Transaction):
 
     @classmethod
     def validate_create(
-        self,
+        cls,
         tx_signers: list[str],
         recipients: list[tuple[list[str], int]],
         assets: Optional[list[dict]],
