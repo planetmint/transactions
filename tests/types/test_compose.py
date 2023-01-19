@@ -44,8 +44,11 @@ example_compose_tx = {
 # Test scenarios
 
 # Test valid compose 1 input same owner
-def test_valid_compose_single_input_same_owner():
-    return 
+def test_valid_compose_single_input_same_owner(utx, user_pub):
+    inputs = utx.to_inputs()
+    assets = [utx.id, "QmW5GVMW98D3mktSDfWHS8nX2UiCd8gP1uCiujnFX4yK8n"]
+    compose_tx = Compose.generate(inputs, [([user_pub], 1)], assets)
+    assert compose_tx
 
 # Test valid compose 1 input different owner
 def test_valid_compose_single_input_different_owner():
