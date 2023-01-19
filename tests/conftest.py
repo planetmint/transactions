@@ -10,6 +10,8 @@ from base58 import b58decode
 from planetmint_cryptoconditions import ThresholdSha256, Ed25519Sha256
 from ipld import marshal, multihash
 from transactions.types.assets.create import Create
+from transactions.common.crypto import generate_key_pair
+
 
 USER_PRIVATE_KEY = "8eJ8q9ZQpReWyQT5aFCiwtZ5wDZC4eDnCen88p3tQ6ie"
 USER_PUBLIC_KEY = "JEAkEJqLbbgDRAtMm8YAjGp759Aq2qTn9eaEHUj2XePE"
@@ -326,29 +328,21 @@ def user_pk():
 
 @pytest.fixture
 def alice():
-    from transactions.common.crypto import generate_key_pair
-
     return generate_key_pair()
 
 
 @pytest.fixture
 def bob():
-    from transactions.common.crypto import generate_key_pair
-
     return generate_key_pair()
 
 
 @pytest.fixture
 def carol():
-    from transactions.common.crypto import generate_key_pair
-
     return generate_key_pair()
 
 
 @pytest.fixture
 def merlin():
-    from transactions.common.crypto import generate_key_pair
-
     return generate_key_pair()
 
 

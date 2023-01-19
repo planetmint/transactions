@@ -10,19 +10,21 @@ from cid import is_cid
 from transactions.common.transaction import Transaction
 from transactions.common.input import Input
 from transactions.common.output import Output
+from transactions.common.schema import _validate_schema, TX_SCHEMA_COMMON, TX_SCHEMA_COMPOSE
+from transactions.common.exceptions import SchemaValidationError
 
 
 class Compose(Transaction):
     OPERATION = "COMPOSE"
     ALLOWED_OPERATIONS = (OPERATION,)
+    TX_SCHEMA_CUSTOM = TX_SCHEMA_COMPOSE
 
     @classmethod
     def validate_compose(
       cls,
       inputs: list[Input],
       recipients: list[tuple[list[str], int]],
-      new_assets: list[str],
-      asset_ids: list[str]
+      new_assets: list[str]
     ):
         if not isinstance(inputs, list):
             raise TypeError("`inputs` must be a list instance")
@@ -34,16 +36,6 @@ class Compose(Transaction):
         if len(new_assets) != 1:
             raise ValueError("`assets` must contain only one new asset")
 
-        input_tx_ids = []
-        for input in inputs:
-            if input.fulfills:
-                input_tx_ids.append(input.fulfills.txid)
-            else:
-                raise ValueError("`inputs` must fulfill another transaction")
-
-        if set(asset_ids) != set(input_tx_ids):
-            raise ValueError("consumed `asset_ids` must be represented in `input.fulfills`")
-
         outputs = []
         for recipient in recipients:
             if not isinstance(recipient, tuple) or len(recipient) != 2:
@@ -54,6 +46,14 @@ class Compose(Transaction):
             outputs.append(Output.generate(pub_keys, amount))
         
         return (deepcopy(inputs), outputs)
+
+    @classmethod
+    def validate_schema(cls, tx):
+        try:
+            _validate_schema(TX_SCHEMA_COMMON, tx)
+            _validate_schema(cls.TX_SCHEMA_CUSTOM, tx)
+        except KeyError:
+            raise SchemaValidationError()
 
     @classmethod
     def generate(
@@ -70,7 +70,9 @@ class Compose(Transaction):
                 new_assets.append(asset)
             else:
                 asset_ids.append(asset)
-        (inputs, outputs) = Compose.validate_compose(inputs, recipients, new_assets, asset_ids)
+        (inputs, outputs) = Compose.validate_compose(inputs, recipients, new_assets)
         new_assets = [{"data": cid} for cid in new_assets]
         asset_ids = [{"id": id} for id in asset_ids]
-        return cls(cls.OPERATION, new_assets + asset_ids, inputs, outputs, metadata)
+        compose = cls(cls.OPERATION, new_assets + asset_ids, inputs, outputs, metadata)
+        cls.validate_schema(compose.to_dict())
+        return compose
