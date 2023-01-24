@@ -352,11 +352,19 @@ def create_tx(alice, user_pk):
     assets = [{"data": multihash(marshal({"name": name}))}]
     return Create.generate([alice.public_key], [([user_pk], 1)], assets=assets)
 
+@pytest.fixture
+def create_tx_2(alice, user_pk):
+    name = f"I am created by the create_tx fixture. My random identifier is {random.random()}."
+    assets = [{"data": multihash(marshal({"name": name}))}]
+    return Create.generate([alice.public_key], [([user_pk], 1)], assets=assets)
 
 @pytest.fixture
 def signed_create_tx(alice, create_tx):
     return create_tx.sign([alice.private_key])
 
+@pytest.fixture
+def signed_create_tx_2(alice, create_tx_2):
+    return create_tx_2.sign([alice.private_key])
 
 @pytest.fixture
 def signed_transfer_tx(signed_create_tx, user_pk, user_sk):

@@ -24,7 +24,8 @@ class Compose(Transaction):
       cls,
       inputs: list[Input],
       recipients: list[tuple[list[str], int]],
-      new_assets: list[str]
+      new_assets: list[str],
+      asset_ids: list[str]
     ):
         if not isinstance(inputs, list):
             raise TypeError("`inputs` must be a list instance")
@@ -35,6 +36,10 @@ class Compose(Transaction):
 
         if len(new_assets) != 1:
             raise ValueError("`assets` must contain only one new asset")
+
+        input_tx_ids = set([input.fulfills.txid for input in inputs])
+        if len(input_tx_ids) < len(asset_ids):
+            raise ValueError("there must be at least one input per consumed asset")
 
         outputs = []
         for recipient in recipients:
@@ -70,7 +75,7 @@ class Compose(Transaction):
                 new_assets.append(asset)
             else:
                 asset_ids.append(asset)
-        (inputs, outputs) = Compose.validate_compose(inputs, recipients, new_assets)
+        (inputs, outputs) = Compose.validate_compose(inputs, recipients, new_assets, asset_ids)
         new_assets = [{"data": cid} for cid in new_assets]
         asset_ids = [{"id": id} for id in asset_ids]
         compose = cls(cls.OPERATION, new_assets + asset_ids, inputs, outputs, metadata)
