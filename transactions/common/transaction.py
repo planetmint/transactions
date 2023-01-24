@@ -53,7 +53,8 @@ UnspentOutput = namedtuple(
 VALIDATOR_ELECTION = "VALIDATOR_ELECTION"
 CHAIN_MIGRATION_ELECTION = "CHAIN_MIGRATION_ELECTION"
 VOTE = "VOTE"
-
+COMPOSE = "COMPOSE"
+DECOMPOSE = "DECOMPOSE"
 
 class Transaction(object):
     """A Transaction is used to create and transfer assets.
@@ -83,6 +84,8 @@ class Transaction(object):
     VALIDATOR_ELECTION: str = VALIDATOR_ELECTION
     CHAIN_MIGRATION_ELECTION: str = CHAIN_MIGRATION_ELECTION
     VOTE: str = VOTE
+    COMPOSE: str = COMPOSE
+    DECOMPOSE: str = DECOMPOSE
     ALLOWED_OPERATIONS: tuple[str, ...] = (CREATE, TRANSFER)
     ASSETS: str = "assets"
     METADATA: str = "metadata"

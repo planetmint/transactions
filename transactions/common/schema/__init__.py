@@ -42,6 +42,8 @@ _, TX_SCHEMA_VOTE = _load_schema("transaction_vote", TX_SCHEMA_VERSION)
 
 _, TX_SCHEMA_COMPOSE = _load_schema("transaction_compose", TX_SCHEMA_VERSION)
 
+_, TX_SCHEMA_DECOMPOSE = _load_schema("transaction_decompose", TX_SCHEMA_VERSION)
+
 TX_SCHEMA_PATH_2_0, TX_SCHEMA_COMMON_2_0 = _load_schema("transaction", TX_SCHEMA_VERSION_2_0)
 _, TX_SCHEMA_CREATE_2_0 = _load_schema("transaction_create", TX_SCHEMA_VERSION_2_0)
 _, TX_SCHEMA_TRANSFER_2_0 = _load_schema("transaction_transfer", TX_SCHEMA_VERSION_2_0)
