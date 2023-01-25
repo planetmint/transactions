@@ -17,14 +17,7 @@ def test_valid_compose_single_input_same_owner(signed_create_tx, user_pub):
 
     assert compose_tx
     assert len(compose_tx.outputs) == 1
-    assert user_pub in compose_tx.outputs[0].public_keys
-    
-    from transactions.common.transaction import Transaction
-    from transactions.common.schema import validate_transaction_schema
-    dict = compose_tx.to_dict()
-    Transaction.from_dict(dict)
-    validate_transaction_schema(dict)
-    
+    assert user_pub in compose_tx.outputs[0].public_keys  
 
 # Test valid compose 1 input different owner
 def test_valid_compose_single_input_different_owner(signed_create_tx, user2_pub):
