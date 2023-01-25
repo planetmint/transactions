@@ -86,7 +86,7 @@ class Transaction(object):
     VOTE: str = VOTE
     COMPOSE: str = COMPOSE
     DECOMPOSE: str = DECOMPOSE
-    ALLOWED_OPERATIONS: tuple[str, ...] = (CREATE, TRANSFER)
+    ALLOWED_OPERATIONS: tuple[str, ...] = (CREATE, TRANSFER, COMPOSE, DECOMPOSE)
     ASSETS: str = "assets"
     METADATA: str = "metadata"
     DATA: str = "data"

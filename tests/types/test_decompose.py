@@ -4,6 +4,8 @@
 # Code is Apache-2.0 and docs are CC-BY-4.0
 
 from transactions.types.assets.decompose import Decompose
+from transactions.common.transaction import Transaction
+from transactions.common.schema import validate_transaction_schema
 from pytest import raises
 
 
@@ -38,3 +40,13 @@ def test_invalid_recipient(signed_create_tx, user2_pub):
     assets = [signed_create_tx.id]
     with raises(ValueError):
         Decompose.generate(inputs, [([user2_pub], 1)], assets)
+
+# Test Transaction.from_dict
+def test_from_dict(signed_create_tx, user_pub):
+    inputs = signed_create_tx.to_inputs()
+    assets = [signed_create_tx.id]
+    decompose_tx = Decompose.generate(inputs, [([user_pub], 1)], assets)
+    decompose_dict = decompose_tx.to_dict()
+    validate_transaction_schema(decompose_dict)
+    Transaction.from_dict(decompose_dict)
+    

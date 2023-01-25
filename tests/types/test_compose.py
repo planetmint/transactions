@@ -4,6 +4,8 @@
 # Code is Apache-2.0 and docs are CC-BY-4.0
 
 from transactions.types.assets.compose import Compose
+from transactions.common.transaction import Transaction
+from transactions.common.schema import validate_transaction_schema
 from pytest import raises
 
 
@@ -56,3 +58,12 @@ def test_invalid_number_of_new_assets(signed_create_tx, user_pub):
     assets = [signed_create_tx.id, "QmW5GVMW98D3mktSDfWHS8nX2UiCd8gP1uCiujnFX4yK8n", "QmW5GVMW98D3mktSDfWHS8nX2UiCd8gP1uCiujnFX4yK8n"]
     with raises(ValueError):
         Compose.generate(inputs, [([user_pub], 1)], assets)
+
+# Test Transaction.from_dict
+def test_from_dict(signed_create_tx, user_pub):
+    inputs = signed_create_tx.to_inputs()
+    assets = [signed_create_tx.id, "QmW5GVMW98D3mktSDfWHS8nX2UiCd8gP1uCiujnFX4yK8n"]
+    compose_tx = Compose.generate(inputs, [([user_pub], 1)], assets)
+    compose_dict = compose_tx.to_dict()
+    validate_transaction_schema(compose_dict)
+    Transaction.from_dict(compose_dict)
