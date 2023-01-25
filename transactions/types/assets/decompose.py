@@ -24,10 +24,33 @@ class Decompose(Transaction):
         cls,
         inputs: list[Input],
         recipients: list[tuple[list[str], int]],
-        new_assets: list[str],
-        asset_ids: list[str]
+        assets: list[str]
     ):
-        return
+        if not isinstance(inputs, list):
+            raise TypeError("`inputs` must be a list instance")
+        if len(inputs) != 1:
+            raise ValueError("`inputs` must contain exactly one item")
+        
+        if len(assets) != 1:
+            raise ValueError("`assets` must contain exactly one item")
+        
+        outputs = []
+        recipient_pub_keys = []
+        for recipient in recipients:
+            if not isinstance(recipient, tuple) or len(recipient) != 2:
+                raise ValueError(
+                    ("Each `recipient` in the list must be a" " tuple of `([<list of public keys>]," " <amount>)`")
+                )
+            pub_keys, amount = recipient
+            if len(pub_keys) != 1:
+                raise ValueError("decompose transactions only allow for one recipient")
+            recipient_pub_keys.append(pub_keys[0])
+            outputs.append(Output.generate(pub_keys, amount))
+        
+        if len(set(recipient_pub_keys)) != 0:
+            raise ValueError("decompose transactions only allow for one recipient")
+        
+        return (deepcopy(inputs), outputs)
     
     @classmethod
     def validate_schema(cls, tx):
@@ -45,4 +68,7 @@ class Decompose(Transaction):
         assets: list[str],
         metadata: Optional[dict] = None,
     ):
-        return
+        (inputs, outputs) = Decompose.validate_decompose(inputs, recipients, assets)
+        decompose = cls(cls.OPERATION, assets, inputs, outputs, metadata)
+        cls.validate_schema(decompose.to_dict())
+        return decompose

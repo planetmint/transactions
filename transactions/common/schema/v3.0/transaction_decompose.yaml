@@ -6,7 +6,7 @@
 ---
 "$schema": "http://json-schema.org/draft-04/schema#"
 type: object
-title: Transaction Schema - COMPOSE specific constraints
+title: Transaction Schema - DECOMPOSE specific constraints
 required:
 - assets
 - inputs
@@ -19,7 +19,7 @@ properties:
   inputs:
     type: array
     title: "Transaction inputs"
-    minItems: 1
+    maxItems: 1
     items:
       type: "object"
       required:
@@ -32,18 +32,10 @@ definitions:
     pattern: "[0-9a-f]{64}"
     type: string
   asset:
-    oneOf:
-      - type: object
-        additionalProperties: false
-        properties:
-          id:
-            "$ref": "#/definitions/sha3_hexdigest"
-        required:
-        - id
-      - type: object
-        additionalProperties: false
-        properties:
-          data:
-            type: "string"
-        required:
-        - data
+    type: object
+    additionalProperties: false
+    properties:
+      id:
+        "$ref": "#/definitions/sha3_hexdigest"
+    required:
+    - id
