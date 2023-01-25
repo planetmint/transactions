@@ -49,6 +49,9 @@ class Compose(Transaction):
                 )
             pub_keys, amount = recipient
             outputs.append(Output.generate(pub_keys, amount))
+            
+        if len(outputs) != 1:
+            raise ValueError("compose transactions only allow a single ouptut")
         
         return (deepcopy(inputs), outputs)
 
