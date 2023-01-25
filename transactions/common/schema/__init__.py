@@ -91,8 +91,12 @@ def validate_transaction_schema(tx):
             _validate_schema(TX_SCHEMA_COMMON, tx)
             if tx["operation"] == "TRANSFER":
                 _validate_schema(TX_SCHEMA_TRANSFER, tx)
-            else:
+            elif tx["operation"] == "CREATE":
                 _validate_schema(TX_SCHEMA_CREATE, tx)
+            elif tx["operation"] == "COMPOSE":
+                _validate_schema(TX_SCHEMA_COMPOSE, tx)
+            elif tx["operation"] == "DECOMPOSE":
+                _validate_schema(TX_SCHEMA_DECOMPOSE, tx)
         else:
             _validate_schema(TX_SCHEMA_COMMON_2_0, tx)
             if tx["operation"] == "TRANSFER":
