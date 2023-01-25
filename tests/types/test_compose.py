@@ -17,7 +17,8 @@ def test_valid_compose_single_input_same_owner(signed_create_tx, user_pub):
 
     assert compose_tx
     assert len(compose_tx.outputs) == 1
-    assert user_pub in compose_tx.outputs[0].public_keys  
+    assert user_pub in compose_tx.outputs[0].public_keys
+
 
 # Test valid compose 1 input different owner
 def test_valid_compose_single_input_different_owner(signed_create_tx, user2_pub):
@@ -28,6 +29,7 @@ def test_valid_compose_single_input_different_owner(signed_create_tx, user2_pub)
     assert len(compose_tx.outputs) == 1
     assert user2_pub in compose_tx.outputs[0].public_keys
 
+
 # Test valid compose 2 inputs same owner
 def test_valid_compose_two_input_same_owner(signed_create_tx, signed_create_tx_2, user_pub):
     inputs = signed_create_tx.to_inputs() + signed_create_tx_2.to_inputs()
@@ -36,6 +38,7 @@ def test_valid_compose_two_input_same_owner(signed_create_tx, signed_create_tx_2
     assert compose_tx
     assert len(compose_tx.outputs) == 1
     assert user_pub in compose_tx.outputs[0].public_keys
+
 
 # Test valid compose 2 inputs different owner
 def test_valid_compose_two_input_different_owner(signed_create_tx, signed_create_tx_2, user2_pub):
@@ -46,6 +49,7 @@ def test_valid_compose_two_input_different_owner(signed_create_tx, signed_create
     assert len(compose_tx.outputs) == 1
     assert user2_pub in compose_tx.outputs[0].public_keys
 
+
 # Test more asset_ids than input_txid
 def test_asset_input_missmatch(signed_create_tx, signed_create_tx_2, user_pub):
     inputs = signed_create_tx.to_inputs()
@@ -53,12 +57,18 @@ def test_asset_input_missmatch(signed_create_tx, signed_create_tx_2, user_pub):
     with raises(ValueError):
         Compose.generate(inputs, [([user_pub], 1)], assets)
 
+
 # Test more than one new asset
 def test_invalid_number_of_new_assets(signed_create_tx, user_pub):
     inputs = signed_create_tx.to_inputs()
-    assets = [signed_create_tx.id, "QmW5GVMW98D3mktSDfWHS8nX2UiCd8gP1uCiujnFX4yK8n", "QmW5GVMW98D3mktSDfWHS8nX2UiCd8gP1uCiujnFX4yK8n"]
+    assets = [
+        signed_create_tx.id,
+        "QmW5GVMW98D3mktSDfWHS8nX2UiCd8gP1uCiujnFX4yK8n",
+        "QmW5GVMW98D3mktSDfWHS8nX2UiCd8gP1uCiujnFX4yK8n",
+    ]
     with raises(ValueError):
         Compose.generate(inputs, [([user_pub], 1)], assets)
+
 
 # Test Transaction.from_dict
 def test_from_dict(signed_create_tx, user_pub):

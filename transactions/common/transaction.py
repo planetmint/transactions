@@ -56,6 +56,7 @@ VOTE = "VOTE"
 COMPOSE = "COMPOSE"
 DECOMPOSE = "DECOMPOSE"
 
+
 class Transaction(object):
     """A Transaction is used to create and transfer assets.
 
@@ -720,7 +721,7 @@ class Transaction(object):
         return Transaction._to_str(tx)
 
     @staticmethod
-    def get_asset_ids(transactions:list):
+    def get_asset_ids(transactions: list):
         """Get all asset id from a list of :class:`~.Transactions`.
 
         This is useful when we want to check if the multiple inputs of a
@@ -729,16 +730,15 @@ class Transaction(object):
         Args:
             transactions (:obj:`list` of :class:`~transactions.common.
                 transaction.Transaction`): A list of Transactions.
-                
+
         Returns:
             list(str): A list of asset IDs.
 
         """
 
         # create a set of the transactions' asset ids
-        asset_ids = { Transaction.read_out_asset_id(tx) for tx in transactions }
+        asset_ids = {Transaction.read_out_asset_id(tx) for tx in transactions}
         return asset_ids
-
 
     @classmethod
     def get_asset_id(cls, transactions):
@@ -762,8 +762,8 @@ class Transaction(object):
         """
         if not isinstance(transactions, list):
             transactions = [transactions]
-            
-        asset_ids = Transaction.get_asset_ids( transactions )
+
+        asset_ids = Transaction.get_asset_ids(transactions)
 
         # check that all the transactions have the same asset id
         if len(asset_ids) > 1:

@@ -17,20 +17,15 @@ class Decompose(Transaction):
     OPERATION = "DECOMPOSE"
     ALLOWED_OPERATIONS = (OPERATION,)
     TX_SCHEMA_CUSTOM = TX_SCHEMA_DECOMPOSE
-    
+
     @classmethod
-    def validate_decompose(
-        cls,
-        inputs: list[Input],
-        recipients: list[tuple[list[str], int]],
-        assets: list[str]
-    ):
+    def validate_decompose(cls, inputs: list[Input], recipients: list[tuple[list[str], int]], assets: list[str]):
         if not isinstance(inputs, list):
             raise TypeError("`inputs` must be a list instance")
-        
+
         if len(assets) != 1:
             raise ValueError("`assets` must contain exactly one item")
-        
+
         outputs = []
         recipient_pub_keys = []
         for recipient in recipients:
@@ -43,22 +38,22 @@ class Decompose(Transaction):
                 raise ValueError("decompose transactions only allow for one recipient")
             recipient_pub_keys.append(pub_keys[0])
             outputs.append(Output.generate(pub_keys, amount))
-        
+
         if len(set(recipient_pub_keys)) != 1:
             raise ValueError("decompose transactions only allow for one recipient")
-        
+
         owners_before = []
         for i in inputs:
             if len(i.owners_before) == 1:
                 owners_before.append(i.owners_before[0])
             else:
                 raise ValueError("decompose transactions only allow for one owner_before")
-            
+
         if set(recipient_pub_keys) != set(owners_before):
             raise ValueError("recipient/owners_before missmatch")
-        
+
         return (deepcopy(inputs), outputs)
-    
+
     @classmethod
     def validate_schema(cls, tx):
         try:
@@ -66,7 +61,7 @@ class Decompose(Transaction):
             _validate_schema(cls.TX_SCHEMA_CUSTOM, tx)
         except KeyError:
             raise SchemaValidationError()
-        
+
     @classmethod
     def generate(
         cls,

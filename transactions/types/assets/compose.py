@@ -21,11 +21,7 @@ class Compose(Transaction):
 
     @classmethod
     def validate_compose(
-      cls,
-      inputs: list[Input],
-      recipients: list[tuple[list[str], int]],
-      new_assets: list[str],
-      asset_ids: list[str]
+        cls, inputs: list[Input], recipients: list[tuple[list[str], int]], new_assets: list[str], asset_ids: list[str]
     ):
         if not isinstance(inputs, list):
             raise TypeError("`inputs` must be a list instance")
@@ -49,10 +45,10 @@ class Compose(Transaction):
                 )
             pub_keys, amount = recipient
             outputs.append(Output.generate(pub_keys, amount))
-            
+
         if len(outputs) != 1:
             raise ValueError("compose transactions only allow a single ouptut")
-        
+
         return (deepcopy(inputs), outputs)
 
     @classmethod
