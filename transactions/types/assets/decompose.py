@@ -5,7 +5,6 @@
 
 from copy import deepcopy
 from typing import Optional
-from cid import is_cid
 
 from transactions.common.transaction import Transaction
 from transactions.common.input import Input
@@ -28,8 +27,6 @@ class Decompose(Transaction):
     ):
         if not isinstance(inputs, list):
             raise TypeError("`inputs` must be a list instance")
-        if len(inputs) != 1:
-            raise ValueError("`inputs` must contain exactly one item")
         
         if len(assets) != 1:
             raise ValueError("`assets` must contain exactly one item")
@@ -47,8 +44,18 @@ class Decompose(Transaction):
             recipient_pub_keys.append(pub_keys[0])
             outputs.append(Output.generate(pub_keys, amount))
         
-        if len(set(recipient_pub_keys)) != 0:
+        if len(set(recipient_pub_keys)) != 1:
             raise ValueError("decompose transactions only allow for one recipient")
+        
+        owners_before = []
+        for i in inputs:
+            if len(i.owners_before) == 1:
+                owners_before.append(i.owners_before[0])
+            else:
+                raise ValueError("decompose transactions only allow for one owner_before")
+            
+        if set(recipient_pub_keys) != set(owners_before):
+            raise ValueError("recipient/owners_before missmatch")
         
         return (deepcopy(inputs), outputs)
     
@@ -69,6 +76,7 @@ class Decompose(Transaction):
         metadata: Optional[dict] = None,
     ):
         (inputs, outputs) = Decompose.validate_decompose(inputs, recipients, assets)
+        assets = [{"id": asset} for asset in assets]
         decompose = cls(cls.OPERATION, assets, inputs, outputs, metadata)
         cls.validate_schema(decompose.to_dict())
         return decompose
