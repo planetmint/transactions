@@ -32,10 +32,18 @@ definitions:
     pattern: "[0-9a-f]{64}"
     type: string
   asset:
-    type: object
-    additionalProperties: false
-    properties:
-      id:
-        "$ref": "#/definitions/sha3_hexdigest"
-    required:
-    - id
+    oneOf:
+      - type: object
+        additionalProperties: false
+        properties:
+          id:
+            "$ref": "#/definitions/sha3_hexdigest"
+        required:
+        - id
+      - type: object
+        additionalProperties: false
+        properties:
+          data:
+            type: "string"
+        required:
+        - data

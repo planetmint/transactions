@@ -5,6 +5,7 @@
 
 from copy import deepcopy
 from typing import Optional
+from cid import is_cid
 
 from transactions.common.transaction import Transaction
 from transactions.common.input import Input
@@ -19,12 +20,17 @@ class Decompose(Transaction):
     TX_SCHEMA_CUSTOM = TX_SCHEMA_DECOMPOSE
 
     @classmethod
-    def validate_decompose(cls, inputs: list[Input], recipients: list[tuple[list[str], int]], assets: list[str]):
+    def validate_decompose(
+        cls, inputs: list[Input], recipients: list[tuple[list[str], int]], new_assets: list[str], asset_ids: list[str]
+    ):
         if not isinstance(inputs, list):
             raise TypeError("`inputs` must be a list instance")
 
-        if len(assets) != 1:
+        if len(asset_ids) != 1:
             raise ValueError("`assets` must contain exactly one item")
+
+        if len(new_assets) < 1:
+            raise ValueError("decompose must create at least one new `asset`")
 
         outputs = []
         recipient_pub_keys = []
@@ -70,8 +76,16 @@ class Decompose(Transaction):
         assets: list[str],
         metadata: Optional[dict] = None,
     ):
-        (inputs, outputs) = Decompose.validate_decompose(inputs, recipients, assets)
-        assets = [{"id": asset} for asset in assets]
-        decompose = cls(cls.OPERATION, assets, inputs, outputs, metadata)
+        asset_ids = []
+        new_assets = []
+        for asset in assets:
+            if is_cid(asset):
+                new_assets.append(asset)
+            else:
+                asset_ids.append(asset)
+        (inputs, outputs) = Decompose.validate_decompose(inputs, recipients, new_assets, asset_ids)
+        new_assets = [{"data": cid} for cid in new_assets]
+        asset_ids = [{"id": id} for id in asset_ids]
+        decompose = cls(cls.OPERATION, new_assets + asset_ids, inputs, outputs, metadata)
         cls.validate_schema(decompose.to_dict())
         return decompose
