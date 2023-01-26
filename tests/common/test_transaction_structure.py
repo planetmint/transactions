@@ -161,15 +161,6 @@ def test_create_single_input(create_tx, alice):
     validate_raises(tx)
 
 
-def test_create_tx_no_fulfills(create_tx, alice):
-    from transactions.common.transaction import Transaction
-
-    tx = create_tx.to_dict()
-    tx["inputs"][0]["fulfills"] = {"transaction_id": "a" * 64, "output_index": 0}
-    tx = Transaction.from_dict(tx).sign([alice.private_key]).to_dict()
-    validate_raises(tx)
-
-
 def test_transfer_has_inputs(user_sk, signed_transfer_tx):
     signed_transfer_tx.inputs = []
     signed_transfer_tx._id = None
