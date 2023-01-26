@@ -7,7 +7,7 @@ from typing import Optional
 from cid import is_cid
 
 from transactions.common.transaction import Transaction
-
+from transactions.common.input import Input
 
 class Create(Transaction):
 
@@ -48,6 +48,7 @@ class Create(Transaction):
         recipients: list[tuple[list[str], int]],
         metadata: Optional[dict] = None,
         assets: Optional[list] = [{"data": None}],
+        inputs: Optional[list[Input]] = None
     ):
         """A simple way to generate a `CREATE` transaction.
 
@@ -77,5 +78,6 @@ class Create(Transaction):
         """
 
         Create.validate_create(tx_signers, recipients, assets, metadata)
-        (inputs, outputs) = Transaction.complete_tx_i_o(tx_signers, recipients)
+        (generated_inputs, outputs) = Transaction.complete_tx_i_o(tx_signers, recipients)
+        inputs = inputs if inputs is not None else generated_inputs
         return cls(cls.OPERATION, assets, inputs, outputs, metadata)
