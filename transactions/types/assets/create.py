@@ -9,6 +9,7 @@ from cid import is_cid
 from transactions.common.transaction import Transaction
 from transactions.common.input import Input
 
+
 class Create(Transaction):
 
     OPERATION = "CREATE"
@@ -48,7 +49,7 @@ class Create(Transaction):
         recipients: list[tuple[list[str], int]],
         metadata: Optional[dict] = None,
         assets: Optional[list] = [{"data": None}],
-        inputs: Optional[list[Input]] = None
+        inputs: Optional[list[Input]] = None,
     ):
         """A simple way to generate a `CREATE` transaction.
 
