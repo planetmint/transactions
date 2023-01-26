@@ -53,6 +53,8 @@ UnspentOutput = namedtuple(
 VALIDATOR_ELECTION = "VALIDATOR_ELECTION"
 CHAIN_MIGRATION_ELECTION = "CHAIN_MIGRATION_ELECTION"
 VOTE = "VOTE"
+COMPOSE = "COMPOSE"
+DECOMPOSE = "DECOMPOSE"
 
 
 class Transaction(object):
@@ -83,7 +85,9 @@ class Transaction(object):
     VALIDATOR_ELECTION: str = VALIDATOR_ELECTION
     CHAIN_MIGRATION_ELECTION: str = CHAIN_MIGRATION_ELECTION
     VOTE: str = VOTE
-    ALLOWED_OPERATIONS: tuple[str, ...] = (CREATE, TRANSFER)
+    COMPOSE: str = COMPOSE
+    DECOMPOSE: str = DECOMPOSE
+    ALLOWED_OPERATIONS: tuple[str, ...] = (CREATE, TRANSFER, COMPOSE, DECOMPOSE)
     ASSETS: str = "assets"
     METADATA: str = "metadata"
     DATA: str = "data"
@@ -209,10 +213,13 @@ class Transaction(object):
 
     @staticmethod
     def read_out_asset_id(tx):
-        if not tx.version or tx.version != "2.0":
-            return tx.assets[0]["id"]
+        if tx.operation in (tx.CREATE, tx.COMPOSE, tx.VALIDATOR_ELECTION):
+            return tx._id
         else:
-            return tx.assets["id"]
+            if not tx.version or tx.version != "2.0":
+                return tx.assets[0]["id"]
+            else:
+                return tx.assets["id"]
 
     @property
     def unspent_outputs(self):
@@ -220,9 +227,7 @@ class Transaction(object):
         structure containing relevant information for storing them in
         a UTXO set, and performing validation.
         """
-        if self.operation == self.CREATE:
-            self._asset_id = self._id
-        elif self.operation == self.TRANSFER:
+        if self.operation in (self.CREATE, self.TRANSFER, self.COMPOSE, self.DECOMPOSE):
             self._asset_id = Transaction.read_out_asset_id(self)
         return (
             UnspentOutput(
@@ -543,7 +548,7 @@ class Transaction(object):
             #       values to the actual method. This simplifies it's logic
             #       greatly, as we do not have to check against `None` values.
             return self._inputs_valid(["dummyvalue" for _ in self.inputs])
-        elif self.operation == self.TRANSFER:
+        elif self.operation in [self.TRANSFER, self.COMPOSE, self.DECOMPOSE]:
             return self._inputs_valid([output.fulfillment.condition_uri for output in outputs])
         elif self.operation == self.VALIDATOR_ELECTION:
             return self._inputs_valid(["dummyvalue" for _ in self.inputs])
@@ -617,9 +622,6 @@ class Transaction(object):
             return False
         except ASN1DecodeError as e:
             print(f"Exception ASN1DecodeError : {e}")
-            return False
-        except ASN1EncodeError as e:
-            print(f"Exception ASN1EncodeError : {e}")
             return False
 
         if operation in [self.CREATE, self.CHAIN_MIGRATION_ELECTION, self.VALIDATOR_ELECTION]:
@@ -718,6 +720,26 @@ class Transaction(object):
         tx = Transaction._remove_signatures(_tx)
         return Transaction._to_str(tx)
 
+    @staticmethod
+    def get_asset_ids(transactions: list):
+        """Get all asset id from a list of :class:`~.Transactions`.
+
+        This is useful when we want to check if the multiple inputs of a
+        transaction are related to the same asset id.
+
+        Args:
+            transactions (:obj:`list` of :class:`~transactions.common.
+                transaction.Transaction`): A list of Transactions.
+
+        Returns:
+            list(str): A list of asset IDs.
+
+        """
+
+        # create a set of the transactions' asset ids
+        asset_ids = {Transaction.read_out_asset_id(tx) for tx in transactions}
+        return asset_ids
+
     @classmethod
     def get_asset_id(cls, transactions):
         """Get the asset id from a list of :class:`~.Transactions`.
@@ -728,7 +750,7 @@ class Transaction(object):
         Args:
             transactions (:obj:`list` of :class:`~transactions.common.
                 transaction.Transaction`): A list of Transactions.
-                Usually input Transactions that should have a matching
+                Usually input Transactions that must have a matching
                 asset ID.
 
         Returns:
@@ -738,15 +760,10 @@ class Transaction(object):
             :exc:`AssetIdMismatch`: If the inputs are related to different
                 assets.
         """
-
         if not isinstance(transactions, list):
             transactions = [transactions]
 
-        # create a set of the transactions' asset ids
-        asset_ids = {
-            tx.id if tx.operation in [tx.CREATE, tx.VALIDATOR_ELECTION] else Transaction.read_out_asset_id(tx)
-            for tx in transactions
-        }
+        asset_ids = Transaction.get_asset_ids(transactions)
 
         # check that all the transactions have the same asset id
         if len(asset_ids) > 1:
@@ -853,8 +870,9 @@ class Transaction(object):
     def validate_schema(cls, tx):
         validate_transaction_schema(tx)
 
+    # NOTE: only used for CREATE transactions
     @classmethod
-    def complete_tx_i_o(self, tx_signers, recipients):
+    def complete_tx_i_o(cls, tx_signers, recipients):
         inputs = []
         outputs = []
 

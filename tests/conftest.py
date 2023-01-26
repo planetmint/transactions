@@ -10,6 +10,8 @@ from base58 import b58decode
 from planetmint_cryptoconditions import ThresholdSha256, Ed25519Sha256
 from ipld import marshal, multihash
 from transactions.types.assets.create import Create
+from transactions.common.crypto import generate_key_pair
+
 
 USER_PRIVATE_KEY = "8eJ8q9ZQpReWyQT5aFCiwtZ5wDZC4eDnCen88p3tQ6ie"
 USER_PUBLIC_KEY = "JEAkEJqLbbgDRAtMm8YAjGp759Aq2qTn9eaEHUj2XePE"
@@ -326,29 +328,21 @@ def user_pk():
 
 @pytest.fixture
 def alice():
-    from transactions.common.crypto import generate_key_pair
-
     return generate_key_pair()
 
 
 @pytest.fixture
 def bob():
-    from transactions.common.crypto import generate_key_pair
-
     return generate_key_pair()
 
 
 @pytest.fixture
 def carol():
-    from transactions.common.crypto import generate_key_pair
-
     return generate_key_pair()
 
 
 @pytest.fixture
 def merlin():
-    from transactions.common.crypto import generate_key_pair
-
     return generate_key_pair()
 
 
@@ -360,8 +354,20 @@ def create_tx(alice, user_pk):
 
 
 @pytest.fixture
+def create_tx_2(alice, user_pk):
+    name = f"I am created by the create_tx fixture. My random identifier is {random.random()}."
+    assets = [{"data": multihash(marshal({"name": name}))}]
+    return Create.generate([alice.public_key], [([user_pk], 1)], assets=assets)
+
+
+@pytest.fixture
 def signed_create_tx(alice, create_tx):
     return create_tx.sign([alice.private_key])
+
+
+@pytest.fixture
+def signed_create_tx_2(alice, create_tx_2):
+    return create_tx_2.sign([alice.private_key])
 
 
 @pytest.fixture

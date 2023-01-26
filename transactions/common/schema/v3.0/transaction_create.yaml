@@ -30,7 +30,9 @@ properties:
       - fulfills
       properties:
         fulfills:
-            type: "null"
+            anyOf:
+            - type: "object"
+            - type: "null"
 definitions:
   asset:
     additionalProperties: false
