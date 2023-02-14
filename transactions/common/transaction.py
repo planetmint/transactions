@@ -210,9 +210,9 @@ class Transaction(object):
             except KeyError:
                 asset_obj = tx["assets"]
         return asset_obj
-    
+
     # This method returns a an array of assets for all types of transactions version schema
-    # This is to have an unique way of accessing the asset object in the business logic 
+    # This is to have an unique way of accessing the asset object in the business logic
     @staticmethod
     def get_asset_array(tx: dict):
         asset_obj = None
@@ -220,23 +220,23 @@ class Transaction(object):
             asset_obj = tx["assets"]
         else:
             try:
-                asset_obj = [ tx["asset"] ]
+                asset_obj = [tx["asset"]]
             except KeyError:
                 asset_obj = tx["assets"]
-        return asset_obj  
+        return asset_obj
 
     # This method returns a an array of assets for all types of transactions version schema
-    # This is to have an unique way of accessing the asset object in the business logic 
+    # This is to have an unique way of accessing the asset object in the business logic
     def get_assets(self):
         asset_obj = None
         if self.version != "2.0":
             asset_obj = self.assets
         else:
             try:
-                asset_obj = [ self.assets ]
+                asset_obj = [self.assets]
             except KeyError:
                 asset_obj = self.assets
-        return asset_obj  
+        return asset_obj
 
     @staticmethod
     def read_out_asset_id(tx):
