@@ -26,32 +26,23 @@ def _load_schema(name, version, path=__file__):
     return path, (schema, fast_schema)
 
 
-# TODO: make this an env var from a config file
 TX_SCHEMA_VERSION = "v3.0"
 TX_SCHEMA_VERSION_2_0 = "v2.0"
 
 TX_SCHEMA_PATH, TX_SCHEMA_COMMON = _load_schema("transaction", TX_SCHEMA_VERSION)
 _, TX_SCHEMA_CREATE = _load_schema("transaction_create", TX_SCHEMA_VERSION)
 _, TX_SCHEMA_TRANSFER = _load_schema("transaction_transfer", TX_SCHEMA_VERSION)
-
 _, TX_SCHEMA_VALIDATOR_ELECTION = _load_schema("transaction_validator_election", TX_SCHEMA_VERSION)
-
 _, TX_SCHEMA_CHAIN_MIGRATION_ELECTION = _load_schema("transaction_chain_migration_election", TX_SCHEMA_VERSION)
-
 _, TX_SCHEMA_VOTE = _load_schema("transaction_vote", TX_SCHEMA_VERSION)
-
 _, TX_SCHEMA_COMPOSE = _load_schema("transaction_compose", TX_SCHEMA_VERSION)
-
 _, TX_SCHEMA_DECOMPOSE = _load_schema("transaction_decompose", TX_SCHEMA_VERSION)
 
 TX_SCHEMA_PATH_2_0, TX_SCHEMA_COMMON_2_0 = _load_schema("transaction", TX_SCHEMA_VERSION_2_0)
 _, TX_SCHEMA_CREATE_2_0 = _load_schema("transaction_create", TX_SCHEMA_VERSION_2_0)
 _, TX_SCHEMA_TRANSFER_2_0 = _load_schema("transaction_transfer", TX_SCHEMA_VERSION_2_0)
-
 _, TX_SCHEMA_VALIDATOR_ELECTION_2_0 = _load_schema("transaction_validator_election", TX_SCHEMA_VERSION_2_0)
-
 _, TX_SCHEMA_CHAIN_MIGRATION_ELECTION_2_0 = _load_schema("transaction_chain_migration_election", TX_SCHEMA_VERSION_2_0)
-
 _, TX_SCHEMA_VOTE_2_0 = _load_schema("transaction_vote", TX_SCHEMA_VERSION_2_0)
 
 
@@ -80,7 +71,7 @@ def _validate_schema(schema, body):
         raise SchemaValidationError(str(exc)) from exc
 
 
-def validate_transaction_schema(tx):
+def validate_transaction_schema(tx: dict):
     """Validate a transaction dict.
 
     TX_SCHEMA_COMMON contains properties that are common to all types of
@@ -88,20 +79,41 @@ def validate_transaction_schema(tx):
     """
     try:
         if tx["version"] == "3.0":
+            # generic validation
             _validate_schema(TX_SCHEMA_COMMON, tx)
-            if tx["operation"] == "TRANSFER":
-                _validate_schema(TX_SCHEMA_TRANSFER, tx)
-            elif tx["operation"] == "CREATE":
+
+            # special validation
+            if tx["operation"] == "CREATE":
                 _validate_schema(TX_SCHEMA_CREATE, tx)
+            elif tx["operation"] == "TRANSFER":
+                _validate_schema(TX_SCHEMA_TRANSFER, tx)
+            elif tx["operation"] == "VALIDATOR_ELECTION":
+                _validate_schema(TX_SCHEMA_VALIDATOR_ELECTION, tx)
+            elif tx["operation"] == "CHAIN_MIGRATION_ELECTION":
+                _validate_schema(TX_SCHEMA_CHAIN_MIGRATION_ELECTION, tx)
+            elif tx["operation"] == "VOTE":
+                _validate_schema(TX_SCHEMA_TRANSFER, tx)
+                _validate_schema(TX_SCHEMA_VOTE, tx)
             elif tx["operation"] == "COMPOSE":
                 _validate_schema(TX_SCHEMA_COMPOSE, tx)
             elif tx["operation"] == "DECOMPOSE":
                 _validate_schema(TX_SCHEMA_DECOMPOSE, tx)
+
         else:
+            # generic validation
             _validate_schema(TX_SCHEMA_COMMON_2_0, tx)
-            if tx["operation"] == "TRANSFER":
-                _validate_schema(TX_SCHEMA_TRANSFER_2_0, tx)
-            else:
+
+            # special validation
+            if tx["operation"] == "CREATE":
                 _validate_schema(TX_SCHEMA_CREATE_2_0, tx)
+            elif tx["operation"] == "TRANSFER":
+                _validate_schema(TX_SCHEMA_TRANSFER_2_0, tx)
+            elif tx["operation"] == "VALIDATOR_ELECTION":
+                _validate_schema(TX_SCHEMA_VALIDATOR_ELECTION_2_0, tx)
+            elif tx["operation"] == "CHAIN_MIGRATION_ELECTION":
+                _validate_schema(TX_SCHEMA_CHAIN_MIGRATION_ELECTION_2_0, tx)
+            elif tx["operation"] == "VOTE":
+                _validate_schema(TX_SCHEMA_TRANSFER_2_0, tx)
+                _validate_schema(TX_SCHEMA_VOTE_2_0, tx)
     except KeyError:
         raise SchemaValidationError()

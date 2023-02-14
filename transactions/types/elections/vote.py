@@ -5,14 +5,7 @@
 
 from transactions.types.assets.transfer import Transfer
 from transactions.common.transaction import VOTE
-from transactions.common.schema import (
-    _validate_schema,
-    TX_SCHEMA_COMMON,
-    TX_SCHEMA_TRANSFER,
-    TX_SCHEMA_VOTE,
-    TX_SCHEMA_COMMON_2_0,
-    TX_SCHEMA_TRANSFER_2_0,
-)
+from transactions.common.schema import validate_transaction_schema, SchemaValidationError
 
 
 class Vote(Transfer):
@@ -22,7 +15,6 @@ class Vote(Transfer):
     TRANSFER = OPERATION
     ALLOWED_OPERATIONS = (OPERATION,)
     # Custom validation schema
-    TX_SCHEMA_CUSTOM = TX_SCHEMA_VOTE
 
     @classmethod
     def generate(cls, inputs, recipients, election_ids, metadata=None):
@@ -37,12 +29,6 @@ class Vote(Transfer):
         transaction, all the validations for `CREATE` transaction should be inherited
         """
         try:
-            if tx["version"] == "3.0":
-                _validate_schema(TX_SCHEMA_COMMON, tx)
-                _validate_schema(TX_SCHEMA_TRANSFER, tx)
-            else:
-                _validate_schema(TX_SCHEMA_COMMON_2_0, tx)
-                _validate_schema(TX_SCHEMA_TRANSFER_2_0, tx)
+            validate_transaction_schema(tx)
         except KeyError:
             raise SchemaValidationError()
-        _validate_schema(cls.TX_SCHEMA_CUSTOM, tx)

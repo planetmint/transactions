@@ -10,14 +10,13 @@ from cid import is_cid
 from transactions.common.transaction import Transaction
 from transactions.common.input import Input
 from transactions.common.output import Output
-from transactions.common.schema import _validate_schema, TX_SCHEMA_COMMON, TX_SCHEMA_COMPOSE
+from transactions.common.schema import validate_transaction_schema
 from transactions.common.exceptions import SchemaValidationError
 
 
 class Compose(Transaction):
     OPERATION = "COMPOSE"
     ALLOWED_OPERATIONS = (OPERATION,)
-    TX_SCHEMA_CUSTOM = TX_SCHEMA_COMPOSE
 
     @classmethod
     def validate_compose(
@@ -53,11 +52,7 @@ class Compose(Transaction):
 
     @classmethod
     def validate_schema(cls, tx):
-        try:
-            _validate_schema(TX_SCHEMA_COMMON, tx)
-            _validate_schema(cls.TX_SCHEMA_CUSTOM, tx)
-        except KeyError:
-            raise SchemaValidationError()
+        validate_transaction_schema(tx)
 
     @classmethod
     def generate(

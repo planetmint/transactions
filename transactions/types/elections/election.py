@@ -7,7 +7,7 @@ from uuid import uuid4
 from typing import Optional
 
 from transactions.common.transaction import Transaction
-from transactions.common.schema import _validate_schema, TX_SCHEMA_COMMON, TX_SCHEMA_COMMON_2_0
+from transactions.common.schema import validate_transaction_schema, SchemaValidationError
 
 
 class Election(Transaction):
@@ -19,8 +19,6 @@ class Election(Transaction):
     """
 
     OPERATION: Optional[str] = None
-    # Custom validation schema
-    TX_SCHEMA_CUSTOM = None
     # Election Statuses:
     ONGOING: str = "ongoing"
     CONCLUDED: str = "concluded"
@@ -64,12 +62,6 @@ class Election(Transaction):
         `CREATE` transaction should be inherited
         """
         try:
-            if tx["version"] == "3.0":
-                _validate_schema(TX_SCHEMA_COMMON, tx)
-            else:
-                _validate_schema(TX_SCHEMA_COMMON_2_0, tx)
+            validate_transaction_schema(tx)
         except KeyError:
             raise SchemaValidationError()
-
-        if cls.TX_SCHEMA_CUSTOM:
-            _validate_schema(cls.TX_SCHEMA_CUSTOM, tx)

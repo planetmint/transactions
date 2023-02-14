@@ -11,7 +11,6 @@ from transactions.common.input import Input
 
 
 class Create(Transaction):
-
     OPERATION = "CREATE"
     ALLOWED_OPERATIONS = (OPERATION,)
 

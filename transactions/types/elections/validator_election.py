@@ -11,12 +11,13 @@ from .validator_utils import validate_asset_public_key
 
 
 class ValidatorElection(Election):
-
     OPERATION = VALIDATOR_ELECTION
     ALLOWED_OPERATIONS = (OPERATION,)
-    TX_SCHEMA_CUSTOM = TX_SCHEMA_VALIDATOR_ELECTION
 
     @classmethod
     def validate_schema(cls, tx):
         super(ValidatorElection, cls).validate_schema(tx)
-        validate_asset_public_key(tx["assets"][0]["data"]["public_key"])
+        pub_key = (
+            tx["assets"][0]["data"]["public_key"] if tx["version"] == "3.0" else tx["asset"]["data"]["public_key"]
+        )
+        validate_asset_public_key(pub_key)
