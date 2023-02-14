@@ -49,7 +49,6 @@ def to_dict(func, tx_wrapped):
 def memoize_to_dict(func: Callable):
     @functools.wraps(func)
     def memoized_func(*args, **kwargs):
-
         if len(args) > 0 and args[0] and args[0].id:
             return to_dict(func, ToDictWrapper(args[0]))
         else:

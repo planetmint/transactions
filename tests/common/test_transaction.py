@@ -311,7 +311,6 @@ def test_invalid_input_initialization(user_input, user_pub):
 
 
 def test_transaction_link_serialization():
-
     tx_id = "a transaction id"
     expected = {
         "transaction_id": tx_id,
@@ -625,7 +624,6 @@ def test_create_create_transaction_single_io(user_output, user_pub, data):
 
 
 def test_validate_single_io_create_transaction(user_pub, user_priv, data, asset_definition):
-
     tx = Create.generate([user_pub], [([user_pub], 1)], metadata=data)
     tx = tx.sign([user_priv])
     assert tx.inputs_valid() is True
@@ -851,7 +849,6 @@ def test_create_transfer_with_invalid_parameters(tx, user_pub):
 
 
 def test_cant_add_empty_output():
-
     tx = Transaction(Transaction.CREATE, None)
 
     with raises(TypeError):

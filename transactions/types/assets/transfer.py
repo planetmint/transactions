@@ -12,7 +12,6 @@ from copy import deepcopy
 
 
 class Transfer(Transaction):
-
     OPERATION = "TRANSFER"
     ALLOWED_OPERATIONS = (OPERATION,)
 

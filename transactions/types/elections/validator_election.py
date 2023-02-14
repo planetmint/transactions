@@ -11,7 +11,6 @@ from .validator_utils import validate_asset_public_key
 
 
 class ValidatorElection(Election):
-
     OPERATION = VALIDATOR_ELECTION
     ALLOWED_OPERATIONS = (OPERATION,)
 

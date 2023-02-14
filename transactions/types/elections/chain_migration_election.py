@@ -9,6 +9,5 @@ from transactions.types.elections.election import Election
 
 
 class ChainMigrationElection(Election):
-
     OPERATION = CHAIN_MIGRATION_ELECTION
     ALLOWED_OPERATIONS = (OPERATION,)
