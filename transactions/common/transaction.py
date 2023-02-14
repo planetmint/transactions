@@ -30,7 +30,7 @@ from transactions.common.exceptions import (
     InvalidHash,
     AssetIdMismatch,
 )
-from transactions.common.schema import validate_transaction_schema, SchemaValidationError
+from transactions.common.schema import validate_transaction_schema
 from transactions.common.utils import serialize
 from .memoize import memoize_from_dict, memoize_to_dict
 from .input import Input
@@ -210,6 +210,20 @@ class Transaction(object):
             except KeyError:
                 asset_obj = tx["assets"]
         return asset_obj
+    
+    # This method returns a an array of assets for all types of transactions version schema
+    # This is to have an unique way of accessing the asset object in the business logic 
+    @staticmethod
+    def get_asset_array(tx: dict):
+        asset_obj = None
+        if tx["version"] != "2.0":
+            asset_obj = tx["assets"]
+        else:
+            try:
+                asset_obj = [ tx["asset"] ]
+            except KeyError:
+                asset_obj = tx["assets"]
+        return asset_obj  
 
     @staticmethod
     def read_out_asset_id(tx):
