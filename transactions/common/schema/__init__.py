@@ -71,7 +71,7 @@ def _validate_schema(schema, body):
         raise SchemaValidationError(str(exc)) from exc
 
 
-def validate_transaction_schema(tx:dict):
+def validate_transaction_schema(tx: dict):
     """Validate a transaction dict.
 
     TX_SCHEMA_COMMON contains properties that are common to all types of
@@ -81,8 +81,8 @@ def validate_transaction_schema(tx:dict):
         if tx["version"] == "3.0":
             # generic validation
             _validate_schema(TX_SCHEMA_COMMON, tx)
-            
-            #special validation
+
+            # special validation
             if tx["operation"] == "CREATE":
                 _validate_schema(TX_SCHEMA_CREATE, tx)
             elif tx["operation"] == "TRANSFER":
@@ -102,7 +102,7 @@ def validate_transaction_schema(tx:dict):
         else:
             # generic validation
             _validate_schema(TX_SCHEMA_COMMON_2_0, tx)
-            
+
             # special validation
             if tx["operation"] == "CREATE":
                 _validate_schema(TX_SCHEMA_CREATE_2_0, tx)

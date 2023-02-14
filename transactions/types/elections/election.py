@@ -65,4 +65,3 @@ class Election(Transaction):
             validate_transaction_schema(tx)
         except KeyError:
             raise SchemaValidationError()
-

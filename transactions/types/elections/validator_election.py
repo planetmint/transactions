@@ -18,5 +18,7 @@ class ValidatorElection(Election):
     @classmethod
     def validate_schema(cls, tx):
         super(ValidatorElection, cls).validate_schema(tx)
-        pub_key = tx["assets"][0]["data"]["public_key"]  if tx["version"] == "3.0" else tx["asset"]["data"]["public_key"]
-        validate_asset_public_key( pub_key )
+        pub_key = (
+            tx["assets"][0]["data"]["public_key"] if tx["version"] == "3.0" else tx["asset"]["data"]["public_key"]
+        )
+        validate_asset_public_key(pub_key)

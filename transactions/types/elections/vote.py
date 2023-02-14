@@ -29,6 +29,6 @@ class Vote(Transfer):
         transaction, all the validations for `CREATE` transaction should be inherited
         """
         try:
-            validate_transaction_schema( tx )
+            validate_transaction_schema(tx)
         except KeyError:
             raise SchemaValidationError()
