@@ -10,14 +10,13 @@ from cid import is_cid
 from transactions.common.transaction import Transaction
 from transactions.common.input import Input
 from transactions.common.output import Output
-from transactions.common.schema import _validate_schema, TX_SCHEMA_COMMON, TX_SCHEMA_DECOMPOSE
+from transactions.common.schema import validate_transaction_schema, SchemaValidationError
 from transactions.common.exceptions import SchemaValidationError
 
 
 class Decompose(Transaction):
     OPERATION = "DECOMPOSE"
     ALLOWED_OPERATIONS = (OPERATION,)
-    TX_SCHEMA_CUSTOM = TX_SCHEMA_DECOMPOSE
 
     @classmethod
     def validate_decompose(
@@ -63,8 +62,7 @@ class Decompose(Transaction):
     @classmethod
     def validate_schema(cls, tx):
         try:
-            _validate_schema(TX_SCHEMA_COMMON, tx)
-            _validate_schema(cls.TX_SCHEMA_CUSTOM, tx)
+            validate_transaction_schema(tx)
         except KeyError:
             raise SchemaValidationError()
 

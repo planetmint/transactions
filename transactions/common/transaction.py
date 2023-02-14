@@ -30,7 +30,7 @@ from transactions.common.exceptions import (
     InvalidHash,
     AssetIdMismatch,
 )
-from transactions.common.schema import validate_transaction_schema
+from transactions.common.schema import validate_transaction_schema, SchemaValidationError
 from transactions.common.utils import serialize
 from .memoize import memoize_from_dict, memoize_to_dict
 from .input import Input
