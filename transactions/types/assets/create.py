@@ -6,12 +6,12 @@
 from typing import Optional
 from cid import is_cid
 
-from transactions.common.transaction import Transaction
+from transactions.common.transaction import Transaction, CREATE
 from transactions.common.input import Input
 
 
 class Create(Transaction):
-    OPERATION = "CREATE"
+    OPERATION = CREATE
     ALLOWED_OPERATIONS = (OPERATION,)
 
     @classmethod

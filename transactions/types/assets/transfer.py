@@ -5,14 +5,14 @@
 
 from typing import Optional
 
-from transactions.common.transaction import Transaction
+from transactions.common.transaction import Transaction, TRANSFER
 from transactions.common.input import Input
 from transactions.common.output import Output
 from copy import deepcopy
 
 
 class Transfer(Transaction):
-    OPERATION = "TRANSFER"
+    OPERATION = TRANSFER
     ALLOWED_OPERATIONS = (OPERATION,)
 
     @classmethod

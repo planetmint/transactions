@@ -7,15 +7,14 @@ from copy import deepcopy
 from typing import Optional
 from cid import is_cid
 
-from transactions.common.transaction import Transaction
+from transactions.common.transaction import Transaction, DECOMPOSE
 from transactions.common.input import Input
 from transactions.common.output import Output
 from transactions.common.schema import validate_transaction_schema
-from transactions.common.exceptions import SchemaValidationError
 
 
 class Decompose(Transaction):
-    OPERATION = "DECOMPOSE"
+    OPERATION = DECOMPOSE
     ALLOWED_OPERATIONS = (OPERATION,)
 
     @classmethod
