@@ -4,7 +4,6 @@
 # Code is Apache-2.0 and docs are CC-BY-4.0
 
 from transactions.types.elections.election import Election
-from transactions.common.schema import TX_SCHEMA_VALIDATOR_ELECTION
 from transactions.common.transaction import VALIDATOR_ELECTION
 
 from .validator_utils import validate_asset_public_key

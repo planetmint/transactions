@@ -50,11 +50,16 @@ UnspentOutput = namedtuple(
     ),
 )
 
+CREATE = "CREATE"
+TRANSFER = "TRANSFER"
 VALIDATOR_ELECTION = "VALIDATOR_ELECTION"
 CHAIN_MIGRATION_ELECTION = "CHAIN_MIGRATION_ELECTION"
 VOTE = "VOTE"
 COMPOSE = "COMPOSE"
 DECOMPOSE = "DECOMPOSE"
+ASSETS = "assets"
+METADATA = "metadata"
+DATA = "data"
 
 
 class Transaction(object):
@@ -80,17 +85,17 @@ class Transaction(object):
         version (string): Defines the version number of a Transaction.
     """
 
-    CREATE: str = "CREATE"
-    TRANSFER: str = "TRANSFER"
+    CREATE: str = CREATE
+    TRANSFER: str = TRANSFER
     VALIDATOR_ELECTION: str = VALIDATOR_ELECTION
     CHAIN_MIGRATION_ELECTION: str = CHAIN_MIGRATION_ELECTION
     VOTE: str = VOTE
     COMPOSE: str = COMPOSE
     DECOMPOSE: str = DECOMPOSE
     ALLOWED_OPERATIONS: tuple[str, ...] = (CREATE, TRANSFER, COMPOSE, DECOMPOSE)
-    ASSETS: str = "assets"
-    METADATA: str = "metadata"
-    DATA: str = "data"
+    ASSETS: str = ASSETS
+    METADATA: str = METADATA
+    DATA: str = DATA
     VERSION: str = "3.0"
 
     def __init__(
