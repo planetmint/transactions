@@ -36,6 +36,7 @@ from .memoize import memoize_from_dict, memoize_to_dict
 from .input import Input
 from .output import Output
 from .transaction_link import TransactionLink
+from .script import Script
 
 UnspentOutput = namedtuple(
     "UnspentOutput",
@@ -108,7 +109,7 @@ class Transaction(object):
         version=None,
         hash_id=None,
         tx_dict=None,
-        script=None,
+        script: Optional[Script] = None,
     ):
         """The constructor allows to create a customizable Transaction.
 
@@ -705,7 +706,7 @@ class Transaction(object):
         }
 
         if self.script:
-            tx_dict["script"] = self.script
+            tx_dict["script"] = self.script.to_dict()
         return tx_dict
 
     @staticmethod
@@ -874,6 +875,7 @@ class Transaction(object):
         inputs = [Input.from_dict(input_) for input_ in tx["inputs"]]
         outputs = [Output.from_dict(output) for output in tx["outputs"]]
         asset_obj = Transaction.get_asset_obj(tx)
+        script_ = Script.from_dict(script_) if script_ else None
         return cls(
             tx["operation"],
             asset_obj,

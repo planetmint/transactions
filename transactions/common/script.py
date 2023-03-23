@@ -18,7 +18,9 @@ class Script(object):
     @classmethod
     def from_dict(cls, data: dict):
         return Script(
-            base58.b58decode(data["code"]), base58.b58decode(data["inputs"]), base58.b58decode(data["outputs"])
+            json.loads(base58.b58decode(data["code"])),
+            json.loads(base58.b58decode(data["inputs"])),
+            json.loads(base58.b58decode(data["outputs"])),
         )
 
     def to_dict(self):
