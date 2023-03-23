@@ -188,8 +188,11 @@ class Transaction(object):
 
             raise TypeError("`metadata` must be a CID string or None")
 
-        if script is not None and not isinstance(script, dict):
+        if script is not None and not isinstance(script, Script):
             raise TypeError("`script` must be a dict or None")
+        
+        if script is not None and not script.validate():
+            raise ValueError("`script` input to output validation failed")
 
         self.version = version if version is not None else Transaction.VERSION
         self.operation = operation
