@@ -45,7 +45,14 @@ class Election(Transaction):
         return True
 
     @classmethod
-    def generate(cls, initiator, voters, election_data, metadata=None, script: Optional[dict] = None,):
+    def generate(
+        cls,
+        initiator,
+        voters,
+        election_data,
+        metadata=None,
+        script: Optional[dict] = None,
+    ):
         # Break symmetry in case we need to call an election with the same properties twice
         uuid = uuid4()
         election_data[0]["data"]["seed"] = str(uuid)

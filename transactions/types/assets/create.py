@@ -49,7 +49,7 @@ class Create(Transaction):
         metadata: Optional[dict] = None,
         assets: Optional[list] = [{"data": None}],
         inputs: Optional[list[Input]] = None,
-        script: Optional[dict] = None
+        script: Optional[dict] = None,
     ):
         """A simple way to generate a `CREATE` transaction.
 
