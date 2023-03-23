@@ -190,7 +190,7 @@ class Transaction(object):
 
         if script is not None and not isinstance(script, Script):
             raise TypeError("`script` must be a dict or None")
-        
+
         if script is not None and not script.validate():
             raise ValueError("`script` input to output validation failed")
 
