@@ -29,9 +29,11 @@ outputs = ["ok"]
 
 invalid_outputs = ["not ok"]
 
+
 def test_valid_output():
     script = Script(zenroom_script, json.dumps(inputs), outputs)
     assert script.validate()
+
 
 def test_invalid_output():
     script = Script(zenroom_script, json.dumps(inputs), invalid_outputs)
