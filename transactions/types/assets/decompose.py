@@ -69,6 +69,7 @@ class Decompose(Transaction):
         recipients: list[tuple[list[str], int]],
         assets: list[str],
         metadata: Optional[dict] = None,
+        script: Optional[dict] = None,
     ):
         asset_ids = []
         new_assets = []
@@ -80,6 +81,6 @@ class Decompose(Transaction):
         (inputs, outputs) = Decompose.validate_decompose(inputs, recipients, new_assets, asset_ids)
         new_assets = [{"data": cid} for cid in new_assets]
         asset_ids = [{"id": id} for id in asset_ids]
-        decompose = cls(cls.OPERATION, new_assets + asset_ids, inputs, outputs, metadata)
+        decompose = cls(cls.OPERATION, new_assets + asset_ids, inputs, outputs, metadata, script=script)
         cls.validate_schema(decompose.to_dict())
         return decompose
