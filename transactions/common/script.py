@@ -4,6 +4,7 @@
 # Code is Apache-2.0 and docs are CC-BY-4.0
 
 import json
+import base58
 from zenroom import zencode_exec
 from json.decoder import JSONDecodeError
 
@@ -13,9 +14,20 @@ class Script(object):
         self.inputs = inputs
         self.outputs = outputs
     
-    def execute():
-        
-        pass
+    @classmethod
+    def from_dict(cls, data: dict):
+        return Script(
+            base58.b58decode(data["code"]),
+            base58.b58decode(data["inputs"]),
+            base58.b58decode(data["outputs"])
+        )
+    
+    def to_dict(self):
+        return {
+            "code": base58.b58encode(json.dumps(self.code)),
+            "inputs": base58.b58encode(json.dumps(self.inputs)),
+            "outputs": base58.b58encode(json.dumps(self.outputs))
+        }
     
     def validate(self) -> bool:
         result = zencode_exec(self.code, data=self.inputs)
