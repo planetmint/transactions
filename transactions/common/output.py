@@ -7,7 +7,7 @@ from functools import reduce
 from typing import Union, Optional
 
 import base58
-from planetmint_cryptoconditions import ThresholdSha256, Ed25519Sha256, ZenroomSha256
+from planetmint_cryptoconditions import ThresholdSha256, Ed25519Sha256
 from planetmint_cryptoconditions import Fulfillment
 
 from transactions.common.exceptions import AmountError
@@ -126,8 +126,6 @@ class Output(object):
         elif len(public_keys) == 1 and not isinstance(public_keys[0], list):
             if isinstance(public_keys[0], Fulfillment):
                 ffill = public_keys[0]
-            elif isinstance(public_keys[0], ZenroomSha256):
-                ffill = ZenroomSha256(public_key=base58.b58decode(public_keys[0]))
             else:
                 ffill = Ed25519Sha256(public_key=base58.b58decode(public_keys[0]))
             return cls(ffill, public_keys, amount=amount)
