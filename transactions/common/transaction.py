@@ -18,7 +18,7 @@ from typing import Optional
 import rapidjson
 
 import base58
-from planetmint_cryptoconditions import Fulfillment, ThresholdSha256, Ed25519Sha256, ZenroomSha256
+from planetmint_cryptoconditions import Fulfillment, ThresholdSha256, Ed25519Sha256
 from planetmint_cryptoconditions.exceptions import ParsingError, ASN1DecodeError, ASN1EncodeError
 from cid import is_cid
 
@@ -36,6 +36,7 @@ from .memoize import memoize_from_dict, memoize_to_dict
 from .input import Input
 from .output import Output
 from .transaction_link import TransactionLink
+from .script import Script
 
 UnspentOutput = namedtuple(
     "UnspentOutput",
@@ -108,7 +109,7 @@ class Transaction(object):
         version=None,
         hash_id=None,
         tx_dict=None,
-        script=None,
+        script: Optional[Script] = None,
     ):
         """The constructor allows to create a customizable Transaction.
 
@@ -187,8 +188,11 @@ class Transaction(object):
 
             raise TypeError("`metadata` must be a CID string or None")
 
-        if script is not None and not isinstance(script, dict):
+        if script is not None and not isinstance(script, Script):
             raise TypeError("`script` must be a dict or None")
+
+        if script is not None and not script.validate():
+            raise ValueError("`script` input to output validation failed")
 
         self.version = version if version is not None else Transaction.VERSION
         self.operation = operation
@@ -357,7 +361,6 @@ class Transaction(object):
             currently:
                 - Ed25519Fulfillment
                 - ThresholdSha256
-                - ZenroomSha256
             Furthermore, note that all keys required to fully sign the
             Transaction have to be passed to this method. A subset of all
             will cause this method to fail.
@@ -436,8 +439,7 @@ class Transaction(object):
             This method works only for the following Cryptoconditions
             currently:
                 - Ed25519Fulfillment
-                - ThresholdSha256.
-                - ZenroomSha256
+                - ThresholdSha256
         Args:
             input_ (:class:`~transactions.common.transaction.
                 Input`) The Input to be signed.
@@ -448,40 +450,8 @@ class Transaction(object):
             return cls._sign_ed25519_signature_fulfillment(input_, message, key_pairs)
         elif isinstance(input_.fulfillment, ThresholdSha256):
             return cls._sign_threshold_signature_fulfillment(input_, message, key_pairs)
-        elif isinstance(input_.fulfillment, ZenroomSha256):
-            return cls._sign_zenroom_fulfillment(input_, message, key_pairs)
         else:
             raise ValueError("Fulfillment couldn't be matched to " "Cryptocondition fulfillment type.")
-
-    @classmethod
-    def _sign_zenroom_fulfillment(cls, input_: Input, message: str, key_pairs: dict) -> Input:
-        """Signs a Zenroomful.
-
-        Args:
-            input_ (:class:`~transactions.common.transaction.
-                Input`) The input to be signed.
-            message (str): The message to be signed
-            key_pairs (dict): The keys to sign the Transaction with.
-        """
-        # NOTE: To eliminate the dangers of accidentally signing a condition by
-        #       reference, we remove the reference of input_ here
-        #       intentionally. If the user of this class knows how to use it,
-        #       this should never happen, but then again, never say never.
-        input_ = deepcopy(input_)
-        public_key = input_.owners_before[0]
-        sha3_message = sha3_256(message.encode())
-        if input_.fulfills:
-            sha3_message.update("{}{}".format(input_.fulfills.txid, input_.fulfills.output).encode())
-
-        try:
-            # cryptoconditions makes no assumptions of the encoding of the
-            # message to sign or verify. It only accepts bytestrings
-            input_.fulfillment.sign(sha3_message.digest(), base58.b58decode(key_pairs[public_key].encode()))
-        except KeyError:
-            raise KeypairMismatchException(
-                "Public key {} is not a pair to " "any of the private keys".format(public_key)
-            )
-        return input_
 
     @classmethod
     def _sign_ed25519_signature_fulfillment(cls, input_: Input, message: str, key_pairs: dict) -> Input:
@@ -664,22 +634,16 @@ class Transaction(object):
             output_valid = output_condition_uri == ccffill.condition_uri
 
         ffill_valid = False
-        if isinstance(parsed_ffill, ZenroomSha256):
-            import json
+        sha3_message = sha3_256(message.encode())
+        if input_.fulfills:
+            sha3_message.update("{}{}".format(input_.fulfills.txid, input_.fulfills.output).encode())
 
-            msg = json.loads(message)
-            ffill_valid = parsed_ffill.validate(message=json.dumps(msg["script"]))
-        else:
-            sha3_message = sha3_256(message.encode())
-            if input_.fulfills:
-                sha3_message.update("{}{}".format(input_.fulfills.txid, input_.fulfills.output).encode())
+        # NOTE: We pass a timestamp to `.validate`, as in case of a timeout
+        #       condition we'll have to validate against it
 
-            # NOTE: We pass a timestamp to `.validate`, as in case of a timeout
-            #       condition we'll have to validate against it
-
-            # cryptoconditions makes no assumptions of the encoding of the
-            # message to sign or verify. It only accepts bytestrings
-            ffill_valid = parsed_ffill.validate(message=sha3_message.digest())
+        # cryptoconditions makes no assumptions of the encoding of the
+        # message to sign or verify. It only accepts bytestrings
+        ffill_valid = parsed_ffill.validate(message=sha3_message.digest())
         return output_valid and ffill_valid
 
     # This function is required by `lru_cache` to create a key for memoization
@@ -705,7 +669,7 @@ class Transaction(object):
         }
 
         if self.script:
-            tx_dict["script"] = self.script
+            tx_dict["script"] = self.script.to_dict()
         return tx_dict
 
     @staticmethod
@@ -874,6 +838,7 @@ class Transaction(object):
         inputs = [Input.from_dict(input_) for input_ in tx["inputs"]]
         outputs = [Output.from_dict(output) for output in tx["outputs"]]
         asset_obj = Transaction.get_asset_obj(tx)
+        script_ = Script.from_dict(script_) if script_ else None
         return cls(
             tx["operation"],
             asset_obj,

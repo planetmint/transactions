@@ -49,6 +49,7 @@ class Create(Transaction):
         metadata: Optional[dict] = None,
         assets: Optional[list] = [{"data": None}],
         inputs: Optional[list[Input]] = None,
+        script: Optional[dict] = None,
     ):
         """A simple way to generate a `CREATE` transaction.
 
@@ -80,4 +81,4 @@ class Create(Transaction):
         Create.validate_create(tx_signers, recipients, assets, metadata)
         (generated_inputs, outputs) = Transaction.complete_tx_i_o(tx_signers, recipients)
         inputs = inputs if inputs is not None else generated_inputs
-        return cls(cls.OPERATION, assets, inputs, outputs, metadata)
+        return cls(cls.OPERATION, assets, inputs, outputs, metadata, script=script)

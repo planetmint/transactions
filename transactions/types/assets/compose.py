@@ -60,6 +60,7 @@ class Compose(Transaction):
         recipients: list[tuple[list[str], int]],
         assets: list[str],
         metadata: Optional[dict] = None,
+        script: Optional[dict] = None,
     ):
         asset_ids = []
         new_assets = []
@@ -71,6 +72,6 @@ class Compose(Transaction):
         (inputs, outputs) = Compose.validate_compose(inputs, recipients, new_assets, asset_ids)
         new_assets = [{"data": cid} for cid in new_assets]
         asset_ids = [{"id": id} for id in asset_ids]
-        compose = cls(cls.OPERATION, new_assets + asset_ids, inputs, outputs, metadata)
+        compose = cls(cls.OPERATION, new_assets + asset_ids, inputs, outputs, metadata, script=script)
         cls.validate_schema(compose.to_dict())
         return compose

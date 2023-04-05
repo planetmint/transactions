@@ -53,6 +53,7 @@ class Transfer(Transaction):
         recipients: list[tuple[list[str], int]],
         asset_ids: list[str],
         metadata: Optional[dict] = None,
+        script: Optional[dict] = None,
     ):
         """A simple way to generate a `TRANSFER` transaction.
 
@@ -93,4 +94,4 @@ class Transfer(Transaction):
         """
         (inputs, outputs) = cls.validate_transfer(inputs, recipients, asset_ids, metadata)
         ids = [{"id": id} for id in asset_ids]
-        return cls(cls.OPERATION, ids, inputs, outputs, metadata)
+        return cls(cls.OPERATION, ids, inputs, outputs, metadata, script=script)

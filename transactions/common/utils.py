@@ -12,7 +12,7 @@ from typing import Callable
 
 # from planetmint.config import Config
 from transactions.common.exceptions import ValidationError
-from planetmint_cryptoconditions import ThresholdSha256, Ed25519Sha256, ZenroomSha256, Fulfillment
+from planetmint_cryptoconditions import ThresholdSha256, Ed25519Sha256, Fulfillment
 from transactions.common.exceptions import ThresholdTooDeep
 from planetmint_cryptoconditions.exceptions import UnsupportedTypeError
 
@@ -200,13 +200,6 @@ def _fulfillment_to_details(fulfillment: type[Fulfillment]) -> dict:
             "threshold": fulfillment.threshold,
             "subconditions": subconditions,
         }
-    if fulfillment.type_name == "zenroom-sha-256":
-        return {
-            "type": "zenroom-sha-256",
-            "public_key": base58.b58encode(fulfillment.public_key).decode(),
-            "script": base58.b58encode(fulfillment.script).decode(),
-            "data": base58.b58encode(fulfillment.data).decode(),
-        }
 
     raise UnsupportedTypeError(fulfillment.type_name)
 
@@ -230,13 +223,6 @@ def _fulfillment_from_details(data: dict, _depth: int = 0):
             cond = _fulfillment_from_details(cond, _depth + 1)
             threshold.add_subfulfillment(cond)
         return threshold
-
-    if data["type"] == "zenroom-sha-256":
-        public_key_ = base58.b58decode(data["public_key"])
-        script_ = base58.b58decode(data["script"])
-        data_ = base58.b58decode(data["data"])
-        # TODO: assign to zenroom and evaluate the outcome
-        ZenroomSha256(script=script_, data=data_, keys={public_key_})
 
     raise UnsupportedTypeError(data.get("type"))
 

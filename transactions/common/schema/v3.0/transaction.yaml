@@ -173,42 +173,18 @@ definitions:
     required:
       - code
       - state
-      - input
-      - output
+      - inputs
+      - outputs
     properties:
       code:
-        anyOf:
-          - type: object
-            additionalProperties: false
-            required:
-              - type
-              - raw
-              - parameters
-            properties:
-              type:
-                type: string
-                enum:
-                  - zenroom
-              raw:
-                type: string
-              parameters:
-                type: array
-                items:
-                  type: object
-          - type: object
-            additionalProperties: false
-            required:
-              - transaction_id
-            properties:
-              transaction_id:
-                "$ref": "#/definitions/sha3_hexdigest"
+        type: string
       state:
         anyOf:
           - type: object
             "$ref": "#/definitions/sha3_hexdigest"
-      input:
+      inputs:
         type: object
-      output:
+      outputs:
         anyOf:
           - type: object
           - type: array

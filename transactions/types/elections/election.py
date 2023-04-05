@@ -45,14 +45,21 @@ class Election(Transaction):
         return True
 
     @classmethod
-    def generate(cls, initiator, voters, election_data, metadata=None):
+    def generate(
+        cls,
+        initiator,
+        voters,
+        election_data,
+        metadata=None,
+        script: Optional[dict] = None,
+    ):
         # Break symmetry in case we need to call an election with the same properties twice
         uuid = uuid4()
         election_data[0]["data"]["seed"] = str(uuid)
 
         Election.validate_election(initiator, voters, election_data, metadata)
         (inputs, outputs) = Transaction.complete_tx_i_o(initiator, voters)
-        election = cls(cls.OPERATION, election_data, inputs, outputs, metadata)
+        election = cls(cls.OPERATION, election_data, inputs, outputs, metadata, script=script)
         cls.validate_schema(election.to_dict())
         return election
 
