@@ -882,7 +882,41 @@ files = [
     {file = "varint-1.0.2.tar.gz", hash = "sha256:a6ecc02377ac5ee9d65a6a8ad45c9ff1dac8ccee19400a5950fb51d594214ca5"},
 ]
 
+[[package]]
+name = "zenroom"
+version = "2.20.4"
+description = "Zenroom for Python: Bindings of Zenroom library for Python."
+category = "main"
+optional = false
+python-versions = ">=3.8, <4"
+files = [
+    {file = "zenroom-2.20.4-cp310-cp310-linux_armv7l.whl", hash = "sha256:9c7e7a71f69b4e99019519ff034fb0a97f8b0e156c4413c03c3c35e2642f865b"},
+    {file = "zenroom-2.20.4-cp310-cp310-macosx_10_9_x86_64.whl", hash = "sha256:ee2fa343a46d390bb1e1e9c5fb9fdbdc8ad5bc1cde62c41dc1ae0bb740cdb781"},
+    {file = "zenroom-2.20.4-cp310-cp310-manylinux_2_17_aarch64.manylinux2014_aarch64.manylinux_2_24_aarch64.whl", hash = "sha256:aff3375c9f1b282102ec4b38317864eec74028e6f340f4607ecc62e208e91d15"},
+    {file = "zenroom-2.20.4-cp310-cp310-manylinux_2_17_i686.manylinux2014_i686.manylinux_2_24_i686.whl", hash = "sha256:dac55f1336be179c68a9e114b00919592a02b37e62dd94ebe21a81396e1dbba6"},
+    {file = "zenroom-2.20.4-cp310-cp310-manylinux_2_17_x86_64.manylinux2014_x86_64.manylinux_2_24_x86_64.whl", hash = "sha256:674a336b366d1cdbdb448de6a5d58a927080b1f5070246eb0461cf74ec0d5c4b"},
+    {file = "zenroom-2.20.4-cp311-cp311-linux_armv7l.whl", hash = "sha256:4765c91b24b02aab03851cd8c5aee0ab2b43c91718c2de7bc86b022a407e2ee6"},
+    {file = "zenroom-2.20.4-cp311-cp311-macosx_10_9_x86_64.whl", hash = "sha256:c92baa6ffa3c7331f8be4fa3b279fddb9a4f7a453a6bbd628ee8548a9ddbe536"},
+    {file = "zenroom-2.20.4-cp311-cp311-manylinux_2_17_aarch64.manylinux2014_aarch64.manylinux_2_24_aarch64.whl", hash = "sha256:e1a9ed886e3331a5a56776d1a0f0f99c6b6a0d278bad90cab0060541c925e101"},
+    {file = "zenroom-2.20.4-cp311-cp311-manylinux_2_17_i686.manylinux2014_i686.manylinux_2_24_i686.whl", hash = "sha256:ac65f02057bd129dbacc3df724c30bc5543c419f1b7d53dff019ea41b8be0302"},
+    {file = "zenroom-2.20.4-cp311-cp311-manylinux_2_17_x86_64.manylinux2014_x86_64.manylinux_2_24_x86_64.whl", hash = "sha256:47c7ed0900250e9ee3ab49e609807283413c2cb5f3a73fa2cca5c9ed4fb635bc"},
+    {file = "zenroom-2.20.4-cp38-cp38-linux_armv7l.whl", hash = "sha256:8f3d117f9586610724b549ca32962682e5e0b25d01ff60149b2fd24b1fd16417"},
+    {file = "zenroom-2.20.4-cp38-cp38-macosx_10_9_x86_64.whl", hash = "sha256:aa0d56064fdc20f1dc8d8ec9ce20c83fe778dd1e6ab03c15f1d347335929faff"},
+    {file = "zenroom-2.20.4-cp38-cp38-manylinux_2_17_aarch64.manylinux2014_aarch64.manylinux_2_24_aarch64.whl", hash = "sha256:88df5d986a00830d035c073ab22004a1951f101fc5be9f78452719af00fc030b"},
+    {file = "zenroom-2.20.4-cp38-cp38-manylinux_2_17_i686.manylinux2014_i686.manylinux_2_24_i686.whl", hash = "sha256:a4d0e13b49b0705f53e16cd1dda1e2eab7304abb812d3261aced8cd37841dd84"},
+    {file = "zenroom-2.20.4-cp38-cp38-manylinux_2_17_x86_64.manylinux2014_x86_64.manylinux_2_24_x86_64.whl", hash = "sha256:eb64f908692e91c9cc9b9d2f16cf7669ac5368c465f027818a953355829228e1"},
+    {file = "zenroom-2.20.4-cp39-cp39-linux_armv7l.whl", hash = "sha256:d96e610da294b92322cd5fe3960449b622a8ddd96d175e2e971b966ac2b551f4"},
+    {file = "zenroom-2.20.4-cp39-cp39-macosx_10_9_x86_64.whl", hash = "sha256:4227cecea222acb8c8b52550d40955c9ee845c7f656da1ff275cdefc92597954"},
+    {file = "zenroom-2.20.4-cp39-cp39-manylinux_2_17_aarch64.manylinux2014_aarch64.manylinux_2_24_aarch64.whl", hash = "sha256:926a93bf8420be46059fd8a27bc37f4d8eaca86daeeff609aab4523600163bfb"},
+    {file = "zenroom-2.20.4-cp39-cp39-manylinux_2_17_i686.manylinux2014_i686.manylinux_2_24_i686.whl", hash = "sha256:e1f55f401acaef740856e3dc0daa9506888346759c8b0b8882e7c534ec6384e4"},
+    {file = "zenroom-2.20.4-cp39-cp39-manylinux_2_17_x86_64.manylinux2014_x86_64.manylinux_2_24_x86_64.whl", hash = "sha256:c29cb8ca9e522e73eefccc21ea776e83ddf032346c9755c2a715fb198a6adc36"},
+    {file = "zenroom-2.20.4.tar.gz", hash = "sha256:a0046e61c6fc73005f17b0b7a9020f7d185580238fea758d8dff11aaecd3c85c"},
+]
+
+[package.extras]
+test = ["pytest", "schema"]
+
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.9"
-content-hash = "b7f5bffbeb926c08feb7b1abfefee3ef6f40a0a0a5d779fc5e2564c0e129bbcb"
+content-hash = "bee7b3a9ba0e4f04b1bdc8b6c1fdfccff02185fb3a92a9615356e120f6a9e401"

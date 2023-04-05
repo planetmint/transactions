@@ -17,6 +17,7 @@ planetmint-ipld = "^0.0.3"
 python-rapidjson = "^1.8"
 jsonschema = "^4.16.0"
 PyYAML = "^6.0"
+zenroom = "^2.20.4"
 
 [tool.poetry.group.dev.dependencies]
 black = "23.1.0"
