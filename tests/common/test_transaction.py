@@ -29,6 +29,8 @@ try:
 except ImportError:
     from sha3 import sha3_256
 
+__not_a_list = "not a list"
+
 
 def test_input_serialization(ffill_uri, user_pub):
     expected = {
@@ -36,8 +38,8 @@ def test_input_serialization(ffill_uri, user_pub):
         "fulfillment": ffill_uri,
         "fulfills": None,
     }
-    input = Input(Fulfillment.from_uri(ffill_uri), [user_pub])
-    assert input.to_dict() == expected
+    input_local = Input(Fulfillment.from_uri(ffill_uri), [user_pub])
+    assert input_local.to_dict() == expected
 
 
 def test_input_deserialization_with_uri(ffill_uri, user_pub):
@@ -47,9 +49,9 @@ def test_input_deserialization_with_uri(ffill_uri, user_pub):
         "fulfillment": ffill_uri,
         "fulfills": None,
     }
-    input = Input.from_dict(ffill)
+    input_local = Input.from_dict(ffill)
 
-    assert input == expected
+    assert input_local == expected
 
 
 @mark.skip(reason="None is tolerated because it is None before fulfilling.")
@@ -85,41 +87,41 @@ def test_input_deserialization_with_unsigned_fulfillment(ffill_uri, user_pub):
         "fulfillment": Fulfillment.from_uri(ffill_uri),
         "fulfills": None,
     }
-    input = Input.from_dict(ffill)
+    input_local = Input.from_dict(ffill)
 
-    assert input == expected
+    assert input_local == expected
 
 
-def test_output_serialization(user_Ed25519, user_pub):
+def test_output_serialization(user_ed25519, user_pub):
     from transactions.common.transaction import Output
 
     expected = {
         "condition": {
-            "uri": user_Ed25519.condition_uri,
+            "uri": user_ed25519.condition_uri,
             "details": {
                 "type": "ed25519-sha-256",
-                "public_key": b58encode(user_Ed25519.public_key).decode(),
+                "public_key": b58encode(user_ed25519.public_key).decode(),
             },
         },
         "public_keys": [user_pub],
         "amount": "1",
     }
 
-    cond = Output(user_Ed25519, [user_pub], 1)
+    cond = Output(user_ed25519, [user_pub], 1)
 
     assert cond.to_dict() == expected
 
 
-def test_output_deserialization(user_Ed25519, user_pub):
+def test_output_deserialization(user_ed25519, user_pub):
     from transactions.common.transaction import Output
 
-    expected = Output(user_Ed25519, [user_pub], 1)
+    expected = Output(user_ed25519, [user_pub], 1)
     cond = {
         "condition": {
-            "uri": user_Ed25519.condition_uri,
+            "uri": user_ed25519.condition_uri,
             "details": {
                 "type": "ed25519-sha-256",
-                "public_key": b58encode(user_Ed25519.public_key).decode(),
+                "public_key": b58encode(user_ed25519.public_key).decode(),
             },
         },
         "public_keys": [user_pub],
@@ -237,7 +239,7 @@ def test_generate_output_invalid_parameters(user_pub, user2_pub, user3_pub):
     with raises(ValueError):
         Output.generate([], 1)
     with raises(TypeError):
-        Output.generate("not a list", 1)
+        Output.generate(__not_a_list, 1)
     with raises(ValueError):
         Output.generate([[user_pub, [user2_pub, [user3_pub]]]], 1)
     with raises(ValueError):
@@ -274,7 +276,7 @@ def test_create_default_asset_on_tx_initialization(asset_definition):
 def test_transaction_serialization(user_input, user_output, data):
     expected = {
         "id": None,
-        "version": Transaction.VERSION,
+        "version": Transaction.__VERSION__,
         # NOTE: This test assumes that Inputs and Outputs can
         #       successfully be serialized
         "inputs": [user_input.to_dict()],
@@ -589,7 +591,7 @@ def test_validate_inputs_of_transfer_tx_with_invalid_params(
     with raises(TypeError):
         assert transfer_tx.inputs_valid(None) is False
     with raises(AttributeError):
-        transfer_tx.inputs_valid("not a list")
+        transfer_tx.inputs_valid(__not_a_list)
     with raises(ValueError):
         transfer_tx.inputs_valid([])
     with raises(TypeError):
@@ -610,7 +612,7 @@ def test_create_create_transaction_single_io(user_output, user_pub, data):
         ],
         "inputs": [{"owners_before": [user_pub], "fulfillment": None, "fulfills": None}],
         "operation": "CREATE",
-        "version": Transaction.VERSION,
+        "version": Transaction.__VERSION__,
     }
 
     tx = Create.generate([user_pub], [([user_pub], 1)], metadata=data, assets=[{"data": data}])
@@ -633,13 +635,13 @@ def test_create_create_transaction_multiple_io(user_output, user2_output, user_p
     # a fulfillment for a create transaction with multiple `owners_before`
     # is a fulfillment for an implicit threshold condition with
     # weight = len(owners_before)
-    input = Input.generate([user_pub, user2_pub]).to_dict()
+    input_local = Input.generate([user_pub, user2_pub]).to_dict()
     expected = {
         "outputs": [user_output.to_dict(), user2_output.to_dict()],
         "metadata": "QmaozNR7DZHQK1ZcU9p7QdrshMvXqWK6gpu5rmrkPdT3L4",
-        "inputs": [input],
+        "inputs": [input_local],
         "operation": "CREATE",
-        "version": Transaction.VERSION,
+        "version": Transaction.__VERSION__,
     }
     tx = Create.generate(
         [user_pub, user2_pub],
@@ -688,7 +690,7 @@ def test_create_create_transaction_threshold(
             },
         ],
         "operation": "CREATE",
-        "version": Transaction.VERSION,
+        "version": Transaction.__VERSION__,
     }
     tx = Create.generate([user_pub], [([user_pub, user2_pub], 1)], metadata=data, assets=[{"data": data}])
     tx_dict = tx.to_dict()
@@ -708,11 +710,14 @@ def test_validate_threshold_create_transaction(user_pub, user_priv, user2_pub, d
     validate_transaction_model(tx)
 
 
+__not_a_cid_string_or_none = "not a cid string or none"
+
+
 def test_create_create_transaction_with_invalid_parameters(user_pub):
     with raises(TypeError):
-        Create.generate("not a list")
+        Create.generate(__not_a_list)
     with raises(TypeError):
-        Create.generate([], "not a list")
+        Create.generate([], __not_a_list)
     with raises(ValueError):
         Create.generate([], [user_pub])
     with raises(ValueError):
@@ -722,19 +727,19 @@ def test_create_create_transaction_with_invalid_parameters(user_pub):
     with raises(ValueError):
         Create.generate([user_pub], [([user_pub],)])
     with raises(TypeError):
-        Create.generate([user_pub], [([user_pub], 1)], metadata={"data": "not a cid string or none"})
+        Create.generate([user_pub], [([user_pub], 1)], metadata={"data": __not_a_cid_string_or_none})
     with raises(TypeError):
-        Create.generate([user_pub], [([user_pub], 1)], assets=[{"data": "not a cid string or none"}])
+        Create.generate([user_pub], [([user_pub], 1)], assets=[{"data": __not_a_cid_string_or_none}])
 
 
 def test_outputs_to_inputs(tx):
     inputs = tx.to_inputs([0])
     assert len(inputs) == 1
-    input = inputs.pop()
-    assert input.owners_before == tx.outputs[0].public_keys
-    assert input.fulfillment == tx.outputs[0].fulfillment
-    assert input.fulfills.txid == tx.id
-    assert input.fulfills.output == 0
+    input_local = inputs.pop()
+    assert input_local.owners_before == tx.outputs[0].public_keys
+    assert input_local.fulfillment == tx.outputs[0].fulfillment
+    assert input_local.fulfills.txid == tx.id
+    assert input_local.fulfills.output == 0
 
 
 def test_create_transfer_transaction_single_io(tx, user_pub, user2_pub, user2_output, user_priv):
@@ -757,7 +762,7 @@ def test_create_transfer_transaction_single_io(tx, user_pub, user2_pub, user2_ou
             }
         ],
         "operation": "TRANSFER",
-        "version": Transaction.VERSION,
+        "version": Transaction.__VERSION__,
     }
     inputs = tx.to_inputs([0])
     transfer_tx = Transfer.generate(inputs, [([user2_pub], 1)], asset_ids=[tx.id])
@@ -809,7 +814,7 @@ def test_create_transfer_transaction_multiple_io(
             },
         ],
         "operation": "TRANSFER",
-        "version": Transaction.VERSION,
+        "version": Transaction.__VERSION__,
     }
 
     transfer_tx = Transfer.generate(tx.to_inputs(), [([user2_pub], 1), ([user2_pub], 1)], asset_ids=[tx.id])
@@ -843,9 +848,9 @@ def test_create_transfer_with_invalid_parameters(tx, user_pub):
     with raises(ValueError):
         Transfer.generate(["fulfillment"], [([user_pub],)], tx.id)
     with raises(TypeError):
-        Transfer.generate(["fulfillment"], [([user_pub], 1)], tx.id, metadata={"data": "not a cid string or none"})
+        Transfer.generate(["fulfillment"], [([user_pub], 1)], tx.id, metadata={"data": __not_a_cid_string_or_none})
     with raises(TypeError):
-        Transfer.generate(["fulfillment"], [([user_pub], 1)], "not a list")
+        Transfer.generate(["fulfillment"], [([user_pub], 1)], __not_a_list)
 
 
 def test_cant_add_empty_output():
@@ -930,7 +935,6 @@ def test_spent_outputs_property(signed_transfer_tx):
     spent_output = spent_outputs[0]
     assert spent_output["transaction_id"] == tx["inputs"][0]["fulfills"]["transaction_id"]
     assert spent_output["output_index"] == tx["inputs"][0]["fulfills"]["output_index"]
-    # assert spent_output._asdict() == tx['inputs'][0]['fulfills']
 
 
 def test_v2_0_transaction_from_dict_create(signed_2_0_create_tx):

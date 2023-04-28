@@ -122,7 +122,7 @@ class Output(object):
         if not isinstance(public_keys, list):
             raise TypeError("`public_keys` must be an instance of list")
         if len(public_keys) == 0:
-            raise ValueError("`public_keys` needs to contain at least one" "owner")
+            raise ValueError("`public_keys` needs to contain at least one owner")
         elif len(public_keys) == 1 and not isinstance(public_keys[0], list):
             if isinstance(public_keys[0], Fulfillment):
                 ffill = public_keys[0]

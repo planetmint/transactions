@@ -33,7 +33,7 @@ def validate_asset_public_key(pk):
 
 def get_public_key_decoder(pk):
     encoding = pk["type"]
-    decoder = base64.b64decode
+    decoder = None
 
     if encoding == "ed25519-base16":
         decoder = base64.b16decode

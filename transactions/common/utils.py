@@ -10,7 +10,6 @@ import re
 import rapidjson
 from typing import Callable
 
-# from planetmint.config import Config
 from transactions.common.exceptions import ValidationError
 from planetmint_cryptoconditions import ThresholdSha256, Ed25519Sha256, Fulfillment
 from transactions.common.exceptions import ThresholdTooDeep
@@ -171,7 +170,7 @@ def validate_key(obj_name: str, key: str) -> None:
      Raises:
          ValidationError: will raise exception in case of regex match.
     """
-    if re.search(r"^[$]|\.|\x00", key):
+    if re.search(r"^([$]|\.|\x00)", key):
         error_str = (
             'Invalid key name "{}" in {} object. The '
             "key name cannot contain characters "

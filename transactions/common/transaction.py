@@ -94,10 +94,10 @@ class Transaction(object):
     COMPOSE: str = COMPOSE
     DECOMPOSE: str = DECOMPOSE
     ALLOWED_OPERATIONS: tuple[str, ...] = (CREATE, TRANSFER, COMPOSE, DECOMPOSE)
-    ASSETS: str = ASSETS
-    METADATA: str = METADATA
+    __ASSETS__: str = ASSETS
+    __METADATA__: str = METADATA
     DATA: str = DATA
-    VERSION: str = "3.0"
+    __VERSION__: str = "3.0"
 
     def __init__(
         self,
@@ -170,11 +170,11 @@ class Transaction(object):
             if not version or version != "2.0":
                 if not (isinstance(assets, list) and "id" in assets[0]):
                     raise TypeError(
-                        ("`assets` must be a list of dicts holding an `id` property " "for 'TRANSFER' Transactions")
+                        ("`assets` must be a list of dicts holding an `id` property for 'TRANSFER' Transactions")
                     )
             else:
                 if not (isinstance(assets, dict) and "id" in assets):
-                    raise TypeError(("`asset` must be a dict holding an `id` property " "for 'TRANSFER' Transactions"))
+                    raise TypeError(("`asset` must be a dict holding an `id` property for 'TRANSFER' Transactions"))
 
         if outputs and not isinstance(outputs, list):
             raise TypeError("`outputs` must be a list instance or None")
@@ -194,7 +194,7 @@ class Transaction(object):
         if script is not None and not script.validate():
             raise ValueError("`script` input to output validation failed")
 
-        self.version = version if version is not None else Transaction.VERSION
+        self.version = version if version is not None else Transaction.__VERSION__
         self.operation = operation
         self.assets = assets
         self.inputs = inputs or []
@@ -451,7 +451,7 @@ class Transaction(object):
         elif isinstance(input_.fulfillment, ThresholdSha256):
             return cls._sign_threshold_signature_fulfillment(input_, message, key_pairs)
         else:
-            raise ValueError("Fulfillment couldn't be matched to " "Cryptocondition fulfillment type.")
+            raise ValueError("Fulfillment couldn't be matched to crypto condition fulfillment type.")
 
     @classmethod
     def _sign_ed25519_signature_fulfillment(cls, input_: Input, message: str, key_pairs: dict) -> Input:
@@ -576,7 +576,7 @@ class Transaction(object):
         """
 
         if len(self.inputs) != len(output_condition_uris):
-            raise ValueError("Inputs and " "output_condition_uris must have the same count")
+            raise ValueError("Inputs and output_condition_uris must have the same count")
 
         tx_dict = self.tx_dict if self.tx_dict else self.to_dict()
         tx_dict = Transaction._remove_signatures(tx_dict)
@@ -763,7 +763,7 @@ class Transaction(object):
 
         # check that all the transactions have the same asset id
         if len(asset_ids) > 1:
-            raise AssetIdMismatch(("All inputs of all transactions passed" " need to have the same asset id"))
+            raise AssetIdMismatch(("All inputs of all transactions passed need to have the same asset id"))
         return asset_ids.pop()
 
     @staticmethod
@@ -787,7 +787,7 @@ class Transaction(object):
         tx_body_serialized = Transaction._to_str(tx_body)
         valid_tx_id = Transaction._to_hash(tx_body_serialized)
         if proposed_tx_id != valid_tx_id:
-            err_msg = "The transaction's id '{}' isn't equal to " "the hash of its body, i.e. it's not valid."
+            err_msg = "The transaction's id '{}' isn't equal to the hash of its body, i.e. it's not valid."
             raise InvalidHash(err_msg.format(proposed_tx_id))
         return True
 
@@ -803,13 +803,17 @@ class Transaction(object):
             :class:`~transactions.common.transaction.Transaction`
         """
         operation = tx.get("operation", Transaction.CREATE) if isinstance(tx, dict) else Transaction.CREATE
-        cls = Transaction.resolve_class(operation)
+        tx_object = Transaction.resolve_class(operation)
+        if not tx_object:
+            from transactions.common.exceptions import SchemaValidationError
 
-        id = None
+            raise SchemaValidationError("Operation type does not exist.")
+
+        tx_id = None
         try:
-            id = tx["id"]
+            tx_id = tx["id"]
         except KeyError:
-            id = None
+            tx_id = None
         asset_tag = Transaction.get_assets_tag(tx["version"])
         asset_obj = Transaction.get_asset_obj(tx)
         local_dict = {
@@ -819,7 +823,7 @@ class Transaction(object):
             "metadata": tx["metadata"],
             asset_tag: asset_obj,
             "version": tx["version"],
-            "id": id,
+            "id": tx_id,
         }
 
         try:
@@ -832,14 +836,14 @@ class Transaction(object):
             local_dict = {**local_dict, **script_dict}
 
         if not skip_schema_validation:
-            cls.validate_id(local_dict)
-            cls.validate_schema(local_dict)
+            tx_object.validate_id(local_dict)
+            tx_object.validate_schema(local_dict)
 
         inputs = [Input.from_dict(input_) for input_ in tx["inputs"]]
         outputs = [Output.from_dict(output) for output in tx["outputs"]]
         asset_obj = Transaction.get_asset_obj(tx)
         script_ = Script.from_dict(script_) if script_ else None
-        return cls(
+        return tx_object(
             tx["operation"],
             asset_obj,
             inputs,
@@ -857,11 +861,10 @@ class Transaction(object):
     def register_type(tx_type, tx_class):
         Transaction.type_registry[tx_type] = tx_class
 
+    @staticmethod
     def resolve_class(operation):
         """For the given `tx` based on the `operation` key return its implementation class"""
-
-        create_txn_class = Transaction.type_registry.get(Transaction.CREATE)
-        return Transaction.type_registry.get(operation, create_txn_class)
+        return Transaction.type_registry.get(operation)
 
     @classmethod
     def validate_schema(cls, tx):
@@ -877,7 +880,7 @@ class Transaction(object):
         for recipient in recipients:
             if not isinstance(recipient, tuple) or len(recipient) != 2:
                 raise ValueError(
-                    ("Each `recipient` in the list must be a" " tuple of `([<list of public keys>]," " <amount>)`")
+                    ("Each `recipient` in the list must be a tuple of `([<list of public keys>], <amount>)`")
                 )
             pub_keys, amount = recipient
             outputs.append(Output.generate(pub_keys, amount))

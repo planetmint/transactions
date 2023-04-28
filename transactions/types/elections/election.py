@@ -27,7 +27,7 @@ class Election(Transaction):
     ELECTION_THRESHOLD = 2 / 3
 
     @classmethod
-    def validate_election(self, tx_signers, recipients, assets, metadata):
+    def validate_election(cls, tx_signers, recipients, assets, metadata):
         if not isinstance(tx_signers, list):
             raise TypeError("`tx_signers` must be a list instance")
         if not isinstance(recipients, list):
