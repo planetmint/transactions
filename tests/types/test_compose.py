@@ -77,4 +77,6 @@ def test_from_dict(signed_create_tx, user_pub):
     compose_tx = Compose.generate(inputs, [([user_pub], 1)], assets)
     compose_dict = compose_tx.to_dict()
     validate_transaction_schema(compose_dict)
-    Transaction.from_dict(compose_dict)
+    tx = Transaction.from_dict(compose_dict)
+    with raises(TypeError):
+        assert tx.inputs_valid() is False
