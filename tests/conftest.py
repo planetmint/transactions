@@ -26,7 +26,7 @@ CC_FULFILLMENT_URI = (
     "pGSAINdamAGCsQq31Uv-08lkBzoO4XLz2qYjJa8CGmj3B1EagUDlVkMAw2CscpCG4syAboKKh"
     "Id_Hrjl2XTYc-BlIkkBVV-4ghWQozusxh45cBz5tGvSW_XwWVu-JGVRQUOOehAL"
 )
-CC_CONDITION_URI = "ni:///sha-256;" "eZI5q6j8T_fqv7xMROaei9_tmTMk4S7WR5Kr4onPHV8" "?fpt=ed25519-sha-256&cost=131072"
+CC_CONDITION_URI = "ni:///sha-256;eZI5q6j8T_fqv7xMROaei9_tmTMk4S7WR5Kr4onPHV8?fpt=ed25519-sha-256&cost=131072"
 
 ASSET_DEFINITION = [{"data": "QmaozNR7DZHQK1ZcU9p7QdrshMvXqWK6gpu5rmrkPdT3L4"}]
 
@@ -74,7 +74,7 @@ def cond_uri():
 
 
 @pytest.fixture
-def user_Ed25519(user_pub):
+def user_ed25519(user_pub):
     return Ed25519Sha256(public_key=b58decode(user_pub))
 
 
@@ -88,15 +88,15 @@ def user_user2_threshold(user_pub, user2_pub):
 
 
 @pytest.fixture
-def user2_Ed25519(user2_pub):
+def user2_ed25519(user2_pub):
     return Ed25519Sha256(public_key=b58decode(user2_pub))
 
 
 @pytest.fixture
-def user_input(user_Ed25519, user_pub):
+def user_input(user_ed25519, user_pub):
     from transactions.common.transaction import Input
 
-    return Input(user_Ed25519, [user_pub])
+    return Input(user_ed25519, [user_pub])
 
 
 @pytest.fixture
@@ -114,17 +114,17 @@ def user_user2_threshold_input(user_user2_threshold, user_pub, user2_pub):
 
 
 @pytest.fixture
-def user_output(user_Ed25519, user_pub):
+def user_output(user_ed25519, user_pub):
     from transactions.common.transaction import Output
 
-    return Output(user_Ed25519, [user_pub])
+    return Output(user_ed25519, [user_pub])
 
 
 @pytest.fixture
-def user2_output(user2_Ed25519, user2_pub):
+def user2_output(user2_ed25519, user2_pub):
     from transactions.common.transaction import Output
 
-    return Output(user2_Ed25519, [user2_pub])
+    return Output(user2_ed25519, [user2_pub])
 
 
 @pytest.fixture
@@ -154,8 +154,8 @@ def transfer_utx(user_output, user2_output, utx):
     from transactions.common.transaction import Input, TransactionLink, Transaction
 
     user_output = user_output.to_dict()
-    input = Input(utx.outputs[0].fulfillment, user_output["public_keys"], TransactionLink(utx.id, 0))
-    return Transaction("TRANSFER", [{"id": utx.id}], [input], [user2_output])
+    input_local = Input(utx.outputs[0].fulfillment, user_output["public_keys"], TransactionLink(utx.id, 0))
+    return Transaction("TRANSFER", [{"id": utx.id}], [input_local], [user2_output])
 
 
 @pytest.fixture

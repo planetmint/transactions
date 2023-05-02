@@ -10,6 +10,8 @@ from transactions.types.elections.chain_migration_election import ChainMigration
 
 Transaction.register_type(Transaction.CREATE, Transaction)
 Transaction.register_type(Transaction.TRANSFER, Transaction)
+Transaction.register_type(Transaction.COMPOSE, Transaction)
+Transaction.register_type(Transaction.DECOMPOSE, Transaction)
 Transaction.register_type(ValidatorElection.OPERATION, ValidatorElection)
 Transaction.register_type(ChainMigrationElection.OPERATION, ChainMigrationElection)
 Transaction.register_type(Vote.OPERATION, Vote)
