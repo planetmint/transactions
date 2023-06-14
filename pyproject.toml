@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "planetmint-transactions"
-version = "0.8.1"
+version = "0.8.2"
 description = "Python implementation of the planetmint transactions spec"
 authors = ["Lorenz Herzberger <lorenzherzberger@gmail.com>"]
 readme = "README.md"
@@ -10,7 +10,7 @@ packages = [
 
 [tool.poetry.dependencies]
 python = "^3.9"
-planetmint-cryptoconditions = "^1.2.0"
+planetmint-cryptoconditions = "^1.2.2"
 base58 = "^2.1.1"
 planetmint-py-cid = "^0.4.2"
 planetmint-ipld = "^0.0.3"
