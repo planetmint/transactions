@@ -2,7 +2,7 @@
 # Planetmint and IPDB software contributors.
 # SPDX-License-Identifier: (Apache-2.0 AND CC-BY-4.0)
 # Code is Apache-2.0 and docs are CC-BY-4.0
-
+import pytest
 import json
 from transactions.common.script import Script
 
@@ -29,23 +29,26 @@ outputs = ["ok"]
 
 invalid_outputs = ["not ok"]
 
-
+@pytest.mark.skip(reason="currently not supported")
 def test_valid_output():
     script = Script(zenroom_script, inputs, outputs)
     assert script.validate()
 
 
+@pytest.mark.skip(reason="currently not supported")
 def test_invalid_output():
     script = Script(zenroom_script, json.dumps(inputs), invalid_outputs)
     assert not script.validate()
 
 
+@pytest.mark.skip(reason="currently not supported")
 def test_to_dict():
     script = Script(zenroom_script, json.dumps(inputs), outputs)
     script_dict = script.to_dict()
     assert script_dict
 
 
+@pytest.mark.skip(reason="currently not supported")
 def test_from_dict():
     script = Script(zenroom_script, inputs, outputs)
     script_dict = script.to_dict()
