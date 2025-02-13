@@ -29,6 +29,7 @@ outputs = ["ok"]
 
 invalid_outputs = ["not ok"]
 
+
 @pytest.mark.skip(reason="currently not supported")
 def test_valid_output():
     script = Script(zenroom_script, inputs, outputs)
