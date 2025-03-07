@@ -8,7 +8,7 @@ Tests for transaction validation are separate.
 """
 import json
 from copy import deepcopy
-
+import binascii
 from base58 import b58encode, b58decode
 from transactions.types.assets.create import Create
 from transactions.types.assets.transfer import Transfer
@@ -256,9 +256,11 @@ def test_invalid_transaction_initialization(asset_definition):
     with raises(TypeError):
         Transaction(operation="TRANSFER", assets={})
     with raises(TypeError):
-        Transaction(operation="CREATE", assets=asset_definition, outputs="invalid outputs")
+        Transaction(operation="CREATE", assets=asset_definition,
+                    outputs="invalid outputs")
     with raises(TypeError):
-        Transaction(operation="CREATE", assets=asset_definition, outputs=[], inputs="invalid inputs")
+        Transaction(operation="CREATE", assets=asset_definition,
+                    outputs=[], inputs="invalid inputs")
     with raises(TypeError):
         Transaction(
             operation="CREATE", assets=asset_definition, outputs=[], inputs=[], metadata={"data": "invalid metadata"}
@@ -290,7 +292,8 @@ def test_transaction_serialization(user_input, user_output, data):
         ],
     }
 
-    tx = Transaction(Transaction.CREATE, [{"data": data}], [user_input], [user_output])
+    tx = Transaction(Transaction.CREATE, [{"data": data}], [
+                     user_input], [user_output])
     tx_dict = tx.to_dict()
 
     assert tx_dict == expected
@@ -424,16 +427,19 @@ def test_sign_with_invalid_parameters(utx, user_priv):
 def test_validate_tx_simple_create_signature(user_input, user_output, user_priv, asset_definition):
     from .utils import validate_transaction_model
 
-    tx = Transaction(Transaction.CREATE, asset_definition, [user_input], [user_output])
+    tx = Transaction(Transaction.CREATE, asset_definition,
+                     [user_input], [user_output])
     expected = deepcopy(user_output)
     tx_dict = tx.to_dict()
     tx_dict["inputs"][0]["fulfillment"] = None
-    serialized_tx = json.dumps(tx_dict, sort_keys=True, separators=(",", ":"), ensure_ascii=True)
+    serialized_tx = json.dumps(
+        tx_dict, sort_keys=True, separators=(",", ":"), ensure_ascii=True)
     message = sha3_256(serialized_tx.encode()).digest()
     expected.fulfillment.sign(message, b58decode(user_priv))
     tx.sign([user_priv])
 
-    assert tx.inputs[0].to_dict()["fulfillment"] == expected.fulfillment.serialize_uri()
+    assert tx.inputs[0].to_dict(
+    )["fulfillment"] == expected.fulfillment.serialize_uri()
     assert tx.inputs_valid() is True
 
     validate_transaction_model(tx)
@@ -443,11 +449,13 @@ def test_validate_tx_simple_create_signature_signing_delegation(user_input, user
     from .utils import validate_transaction_model
 
     # create TX & sign to have a reference signature
-    tx = Transaction(Transaction.CREATE, asset_definition, [user_input], [user_output])
+    tx = Transaction(Transaction.CREATE, asset_definition,
+                     [user_input], [user_output])
     expected = deepcopy(user_output)
     tx_dict = tx.to_dict()
     tx_dict["inputs"][0]["fulfillment"] = None
-    serialized_tx = json.dumps(tx_dict, sort_keys=True, separators=(",", ":"), ensure_ascii=True)
+    serialized_tx = json.dumps(
+        tx_dict, sort_keys=True, separators=(",", ":"), ensure_ascii=True)
     message = sha3_256(serialized_tx.encode()).digest()
     expected.fulfillment.sign(message, b58decode(user_priv))
     tx.sign([user_priv])
@@ -457,16 +465,19 @@ def test_validate_tx_simple_create_signature_signing_delegation(user_input, user
         return signature
 
     # recreate the same TX and sign via the signing callback
-    tx = Transaction(Transaction.CREATE, asset_definition, [user_input], [user_output])
+    tx = Transaction(Transaction.CREATE, asset_definition,
+                     [user_input], [user_output])
     expected = deepcopy(user_output)
     tx_dict = tx.to_dict()
     tx_dict["inputs"][0]["fulfillment"] = None
-    serialized_tx = json.dumps(tx_dict, sort_keys=True, separators=(",", ":"), ensure_ascii=True)
+    serialized_tx = json.dumps(
+        tx_dict, sort_keys=True, separators=(",", ":"), ensure_ascii=True)
     message = sha3_256(serialized_tx.encode()).digest()
     expected.fulfillment.sign(message, b58decode(user_priv))
 
     tx.delegate_signing(signing_callback)
-    assert tx.inputs[0].to_dict()["fulfillment"] == expected.fulfillment.serialize_uri()
+    assert tx.inputs[0].to_dict(
+    )["fulfillment"] == expected.fulfillment.serialize_uri()
     assert tx.inputs_valid() is True
 
     validate_transaction_model(tx)
@@ -477,17 +488,20 @@ def test_invoke_ed25519_signature_fulfillment_with_invalid_params(utx, user_inpu
 
     with raises(KeypairMismatchException):
         invalid_key_pair = {"wrong_pub_key": "wrong_priv_key"}
-        utx._sign_ed25519_signature_fulfillment(user_input, "somemessage", invalid_key_pair)
+        utx._sign_ed25519_signature_fulfillment(
+            user_input, "somemessage", invalid_key_pair)
 
 
 def test_sign_threshold_with_invalid_params(utx, user_user2_threshold_input, user3_pub, user3_priv):
     from transactions.common.exceptions import KeypairMismatchException
 
     with raises(KeypairMismatchException):
-        utx._sign_threshold_signature_fulfillment(user_user2_threshold_input, "somemessage", {user3_pub: user3_priv})
+        utx._sign_threshold_signature_fulfillment(
+            user_user2_threshold_input, "somemessage", {user3_pub: user3_priv})
     with raises(KeypairMismatchException):
         user_user2_threshold_input.owners_before = [58 * "a"]
-        utx._sign_threshold_signature_fulfillment(user_user2_threshold_input, "somemessage", None)
+        utx._sign_threshold_signature_fulfillment(
+            user_user2_threshold_input, "somemessage", None)
 
 
 def test_validate_input_with_invalid_parameters(utx):
@@ -509,17 +523,22 @@ def test_validate_tx_threshold_create_signature(
 ):
     from .utils import validate_transaction_model
 
-    tx = Transaction(Transaction.CREATE, asset_definition, [user_user2_threshold_input], [user_user2_threshold_output])
+    tx = Transaction(Transaction.CREATE, asset_definition, [
+                     user_user2_threshold_input], [user_user2_threshold_output])
     tx_dict = tx.to_dict()
     tx_dict["inputs"][0]["fulfillment"] = None
-    serialized_tx = json.dumps(tx_dict, sort_keys=True, separators=(",", ":"), ensure_ascii=True)
+    serialized_tx = json.dumps(
+        tx_dict, sort_keys=True, separators=(",", ":"), ensure_ascii=True)
     message = sha3_256(serialized_tx.encode()).digest()
     expected = deepcopy(user_user2_threshold_output)
-    expected.fulfillment.subconditions[0]["body"].sign(message, b58decode(user_priv))
-    expected.fulfillment.subconditions[1]["body"].sign(message, b58decode(user2_priv))
+    expected.fulfillment.subconditions[0]["body"].sign(
+        message, b58decode(user_priv))
+    expected.fulfillment.subconditions[1]["body"].sign(
+        message, b58decode(user2_priv))
     tx.sign([user_priv, user2_priv])
 
-    assert tx.inputs[0].to_dict()["fulfillment"] == expected.fulfillment.serialize_uri()
+    assert tx.inputs[0].to_dict(
+    )["fulfillment"] == expected.fulfillment.serialize_uri()
     assert tx.inputs_valid() is True
 
     validate_transaction_model(tx)
@@ -533,25 +552,32 @@ def test_validate_tx_threshold_duplicated_pk(user_pub, user_priv, asset_definiti
     threshold_input = Input(threshold, [user_pub, user_pub])
     threshold_output = Output(threshold, [user_pub, user_pub])
 
-    tx = Transaction(Transaction.CREATE, asset_definition, [threshold_input], [threshold_output])
+    tx = Transaction(Transaction.CREATE, asset_definition,
+                     [threshold_input], [threshold_output])
 
     tx_dict = tx.to_dict()
     tx_dict["inputs"][0]["fulfillment"] = None
-    serialized_tx = json.dumps(tx_dict, sort_keys=True, separators=(",", ":"), ensure_ascii=True)
+    serialized_tx = json.dumps(
+        tx_dict, sort_keys=True, separators=(",", ":"), ensure_ascii=True)
     message = sha3_256(serialized_tx.encode()).digest()
 
     expected = deepcopy(threshold_input)
-    expected.fulfillment.subconditions[0]["body"].sign(message, b58decode(user_priv))
-    expected.fulfillment.subconditions[1]["body"].sign(message, b58decode(user_priv))
+    expected.fulfillment.subconditions[0]["body"].sign(
+        message, b58decode(user_priv))
+    expected.fulfillment.subconditions[1]["body"].sign(
+        message, b58decode(user_priv))
 
     tx.sign([user_priv, user_priv])
 
     subconditions = tx.inputs[0].fulfillment.subconditions
     expected_subconditions = expected.fulfillment.subconditions
-    assert subconditions[0]["body"].to_dict()["signature"] == expected_subconditions[0]["body"].to_dict()["signature"]
-    assert subconditions[1]["body"].to_dict()["signature"] == expected_subconditions[1]["body"].to_dict()["signature"]
+    assert subconditions[0]["body"].to_dict(
+    )["signature"] == expected_subconditions[0]["body"].to_dict()["signature"]
+    assert subconditions[1]["body"].to_dict(
+    )["signature"] == expected_subconditions[1]["body"].to_dict()["signature"]
 
-    assert tx.inputs[0].to_dict()["fulfillment"] == expected.fulfillment.serialize_uri()
+    assert tx.inputs[0].to_dict(
+    )["fulfillment"] == expected.fulfillment.serialize_uri()
     assert tx.inputs_valid() is True
 
 
@@ -560,11 +586,13 @@ def test_multiple_input_validation_of_transfer_tx(
 ):
     from .utils import validate_transaction_model
 
-    tx = Transaction(Transaction.CREATE, asset_definition, [user_input], [user_output, deepcopy(user_output)])
+    tx = Transaction(Transaction.CREATE, asset_definition, [
+                     user_input], [user_output, deepcopy(user_output)])
     tx.sign([user_priv])
 
     inputs = [
-        Input(cond.fulfillment, cond.public_keys, TransactionLink(tx.id, index))
+        Input(cond.fulfillment, cond.public_keys,
+              TransactionLink(tx.id, index))
         for index, cond in enumerate(tx.outputs)
     ]
     outputs = [
@@ -615,7 +643,8 @@ def test_create_create_transaction_single_io(user_output, user_pub, data):
         "version": Transaction.__VERSION__,
     }
 
-    tx = Create.generate([user_pub], [([user_pub], 1)], metadata=data, assets=[{"data": data}])
+    tx = Create.generate([user_pub], [([user_pub], 1)],
+                         metadata=data, assets=[{"data": data}])
     tx_dict = tx.to_dict()
     tx_dict["inputs"][0]["fulfillment"] = None
     tx_dict.pop("id")
@@ -642,20 +671,20 @@ def test_validate_single_io_create_transaction_azure(user_pub, user_priv, data, 
     from hdwallet.hds import BIP32HD
     from hdwallet import HDWallet
     from hdwallet.const import PUBLIC_KEY_TYPES
-    
+
     keyVaultName = "s1seven-wallet-local"
     KVUri = f"https://{keyVaultName}.vault.azure.net"
 
     credential = DefaultAzureCredential()
     key_client = SecretClient(vault_url=KVUri, credential=credential)
-                              
-    key = key_client.get_secret(name="myname")
+
+    key = key_client.get_secret(name="random-uuid")
     seed = key.value
-    
-    account_id = 10
-    change = 0
-    index = 1
-    
+
+    account_id = '10'
+    change = '0'
+    index = '1'
+
     hdwallet: HDWallet = HDWallet(
         cryptocurrency=Cryptocurrency,
         hd=BIP32HD,
@@ -671,11 +700,13 @@ def test_validate_single_io_create_transaction_azure(user_pub, user_priv, data, 
         ))
     sk = hdwallet.private_key()
     pk = hdwallet.public_key()
-                              
-                              
-                              
-    tx = Create.generate([user_pub], [([user_pub], 1)], metadata=data)
-    tx = tx.sign([user_priv])
+    pk = pk[2:]
+
+    pub = bytes.fromhex(pk)
+    b58_pub = b58encode(pub).decode()
+    sk_b58 = b58encode(binascii.unhexlify(sk))
+    tx = Create.generate([b58_pub], [([b58_pub], 1)], metadata=data)
+    tx = tx.sign([sk_b58])
     assert tx.inputs_valid() is True
 
 
@@ -740,7 +771,8 @@ def test_create_create_transaction_threshold(
         "operation": "CREATE",
         "version": Transaction.__VERSION__,
     }
-    tx = Create.generate([user_pub], [([user_pub, user2_pub], 1)], metadata=data, assets=[{"data": data}])
+    tx = Create.generate([user_pub], [([user_pub, user2_pub], 1)],
+                         metadata=data, assets=[{"data": data}])
     tx_dict = tx.to_dict()
     tx_dict.pop("id")
     tx_dict["inputs"][0]["fulfillment"] = None
@@ -751,7 +783,8 @@ def test_create_create_transaction_threshold(
 def test_validate_threshold_create_transaction(user_pub, user_priv, user2_pub, data, asset_definition):
     from .utils import validate_transaction_model
 
-    tx = Create.generate([user_pub], [([user_pub, user2_pub], 1)], assets=asset_definition, metadata=data)
+    tx = Create.generate([user_pub], [([user_pub, user2_pub], 1)],
+                         assets=asset_definition, metadata=data)
     tx = tx.sign([user_priv])
     assert tx.inputs_valid() is True
 
@@ -775,9 +808,11 @@ def test_create_create_transaction_with_invalid_parameters(user_pub):
     with raises(ValueError):
         Create.generate([user_pub], [([user_pub],)])
     with raises(TypeError):
-        Create.generate([user_pub], [([user_pub], 1)], metadata={"data": __not_a_cid_string_or_none})
+        Create.generate([user_pub], [([user_pub], 1)], metadata={
+                        "data": __not_a_cid_string_or_none})
     with raises(TypeError):
-        Create.generate([user_pub], [([user_pub], 1)], assets=[{"data": __not_a_cid_string_or_none}])
+        Create.generate([user_pub], [([user_pub], 1)], assets=[
+                        {"data": __not_a_cid_string_or_none}])
 
 
 def test_outputs_to_inputs(tx):
@@ -813,12 +848,14 @@ def test_create_transfer_transaction_single_io(tx, user_pub, user2_pub, user2_ou
         "version": Transaction.__VERSION__,
     }
     inputs = tx.to_inputs([0])
-    transfer_tx = Transfer.generate(inputs, [([user2_pub], 1)], asset_ids=[tx.id])
+    transfer_tx = Transfer.generate(
+        inputs, [([user2_pub], 1)], asset_ids=[tx.id])
     transfer_tx = transfer_tx.sign([user_priv])
     transfer_tx = transfer_tx.to_dict()
 
     expected_input = deepcopy(inputs[0])
-    json_serialized_tx = json.dumps(expected, sort_keys=True, separators=(",", ":"), ensure_ascii=True)
+    json_serialized_tx = json.dumps(
+        expected, sort_keys=True, separators=(",", ":"), ensure_ascii=True)
     message = sha3_256(json_serialized_tx.encode())
     message.update(
         "{}{}".format(
@@ -865,7 +902,8 @@ def test_create_transfer_transaction_multiple_io(
         "version": Transaction.__VERSION__,
     }
 
-    transfer_tx = Transfer.generate(tx.to_inputs(), [([user2_pub], 1), ([user2_pub], 1)], asset_ids=[tx.id])
+    transfer_tx = Transfer.generate(
+        tx.to_inputs(), [([user2_pub], 1), ([user2_pub], 1)], asset_ids=[tx.id])
     transfer_tx = transfer_tx.sign([user_priv, user2_priv])
 
     assert len(transfer_tx.inputs) == 2
@@ -896,7 +934,8 @@ def test_create_transfer_with_invalid_parameters(tx, user_pub):
     with raises(ValueError):
         Transfer.generate(["fulfillment"], [([user_pub],)], tx.id)
     with raises(TypeError):
-        Transfer.generate(["fulfillment"], [([user_pub], 1)], tx.id, metadata={"data": __not_a_cid_string_or_none})
+        Transfer.generate(["fulfillment"], [([user_pub], 1)], tx.id, metadata={
+                          "data": __not_a_cid_string_or_none})
     with raises(TypeError):
         Transfer.generate(["fulfillment"], [([user_pub], 1)], __not_a_list)
 
@@ -917,13 +956,15 @@ def test_cant_add_empty_input():
 
 def test_unfulfilled_transaction_serialized(unfulfilled_transaction):
     tx_obj = Transaction.from_dict(unfulfilled_transaction)
-    expected = json.dumps(unfulfilled_transaction, sort_keys=True, separators=(",", ":"), ensure_ascii=True)
+    expected = json.dumps(unfulfilled_transaction, sort_keys=True,
+                          separators=(",", ":"), ensure_ascii=True)
     assert tx_obj.serialized == expected
 
 
 def test_fulfilled_transaction_serialized(fulfilled_transaction):
     tx_obj = Transaction.from_dict(fulfilled_transaction)
-    expected = json.dumps(fulfilled_transaction, sort_keys=True, separators=(",", ":"), ensure_ascii=True)
+    expected = json.dumps(fulfilled_transaction, sort_keys=True,
+                          separators=(",", ":"), ensure_ascii=True)
     assert tx_obj.serialized == expected
 
 
@@ -931,7 +972,8 @@ def test_transaction_hash(fulfilled_transaction):
     tx_obj = Transaction.from_dict(fulfilled_transaction)
     assert tx_obj._id is None
     assert tx_obj.id is None
-    thing_to_hash = json.dumps(fulfilled_transaction, sort_keys=True, separators=(",", ":"), ensure_ascii=True)
+    thing_to_hash = json.dumps(
+        fulfilled_transaction, sort_keys=True, separators=(",", ":"), ensure_ascii=True)
     expected_hash_id = sha3_256(thing_to_hash.encode()).hexdigest()
     tx_obj._hash()
     assert tx_obj._id == expected_hash_id
@@ -958,16 +1000,20 @@ def test_unspent_outputs_property(merlin, alice, bob, carol):
     assert len(unspent_outputs) == 3
     assert all(utxo.transaction_id == tx.id for utxo in unspent_outputs)
     assert all(utxo.asset_id == tx.id for utxo in unspent_outputs)
-    assert all(utxo.output_index == i for i, utxo in enumerate(unspent_outputs))
+    assert all(utxo.output_index == i for i,
+               utxo in enumerate(unspent_outputs))
     unspent_output_0 = unspent_outputs[0]
     assert unspent_output_0.amount == 1
-    assert unspent_output_0.condition_uri == Ed25519Sha256(public_key=b58decode(alice.public_key)).condition_uri
+    assert unspent_output_0.condition_uri == Ed25519Sha256(
+        public_key=b58decode(alice.public_key)).condition_uri
     unspent_output_1 = unspent_outputs[1]
     assert unspent_output_1.amount == 2
-    assert unspent_output_1.condition_uri == Ed25519Sha256(public_key=b58decode(bob.public_key)).condition_uri
+    assert unspent_output_1.condition_uri == Ed25519Sha256(
+        public_key=b58decode(bob.public_key)).condition_uri
     unspent_output_2 = unspent_outputs[2]
     assert unspent_output_2.amount == 3
-    assert unspent_output_2.condition_uri == Ed25519Sha256(public_key=b58decode(carol.public_key)).condition_uri
+    assert unspent_output_2.condition_uri == Ed25519Sha256(
+        public_key=b58decode(carol.public_key)).condition_uri
 
 
 def test_spent_outputs_property(signed_transfer_tx):
