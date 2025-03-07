@@ -631,6 +631,54 @@ def test_validate_single_io_create_transaction(user_pub, user_priv, data, asset_
     assert tx.inputs_valid() is True
 
 
+def test_validate_single_io_create_transaction_azure(user_pub, user_priv, data, asset_definition):
+
+    from azure.keyvault.secrets import SecretClient
+    from azure.identity import DefaultAzureCredential
+
+    from hdwallet.seeds.bip39 import BIP39Seed
+    from hdwallet.cryptocurrencies import Solana as Cryptocurrency
+    from hdwallet.derivations import CustomDerivation
+    from hdwallet.hds import BIP32HD
+    from hdwallet import HDWallet
+    from hdwallet.const import PUBLIC_KEY_TYPES
+    
+    keyVaultName = "s1seven-wallet-local"
+    KVUri = f"https://{keyVaultName}.vault.azure.net"
+
+    credential = DefaultAzureCredential()
+    key_client = SecretClient(vault_url=KVUri, credential=credential)
+                              
+    key = key_client.get_secret(name="myname")
+    seed = key.value
+    
+    account_id = 10
+    change = 0
+    index = 1
+    
+    hdwallet: HDWallet = HDWallet(
+        cryptocurrency=Cryptocurrency,
+        hd=BIP32HD,
+        network=Cryptocurrency.NETWORKS.MAINNET,
+        public_key_type=PUBLIC_KEY_TYPES.COMPRESSED
+    ).from_seed(
+        seed=BIP39Seed(
+            seed=seed
+        )
+    ).from_derivation(  # Drive from Custom derivation
+        derivation=CustomDerivation(
+            path="m/44'/822'/" + account_id + "'/" + change + "'/" + index + "'"
+        ))
+    sk = hdwallet.private_key()
+    pk = hdwallet.public_key()
+                              
+                              
+                              
+    tx = Create.generate([user_pub], [([user_pub], 1)], metadata=data)
+    tx = tx.sign([user_priv])
+    assert tx.inputs_valid() is True
+
+
 def test_create_create_transaction_multiple_io(user_output, user2_output, user_pub, user2_pub, asset_definition):
     # a fulfillment for a create transaction with multiple `owners_before`
     # is a fulfillment for an implicit threshold condition with

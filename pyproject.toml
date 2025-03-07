@@ -10,7 +10,9 @@ packages = [
 
 [tool.poetry.dependencies]
 python = "^3.9"
-planetmint-cryptoconditions = "^1.2.2"
+planetmint-cryptoconditions = { git = "https://github.com/planetmint/cryptoconditions.git", rev = "4cd98b3a5d2a028bf1e17321430e697a8d2ddad9" }
+planetmint-driver = { git = "https://github.com/planetmint/planetmint-driver-python.git", rev = "4d3eba8c805372cb214d35565d3eac1482ae1d3c" }
+#planetmint-cryptoconditions = "^1.2.2"
 base58 = "^2.1.1"
 planetmint-py-cid = "^0.4.2"
 planetmint-ipld = "^0.0.3"
@@ -23,6 +25,9 @@ zenroom = "^4.0.0"
 black = "24.3.0"
 hypothesis = "^6.54.6"
 pytest = "^7.2.0"
+azure-keyvault-secrets = "^4.9.0"
+hdwallet = "^3.3.0"
+azure-identity = "^1.20.0"
 
 [build-system]
 requires = ["poetry-core"]
