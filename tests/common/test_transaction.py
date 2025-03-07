@@ -706,8 +706,12 @@ def test_validate_single_io_create_transaction_azure(user_pub, user_priv, data, 
     b58_pub = b58encode(pub).decode()
     sk_b58 = b58encode(binascii.unhexlify(sk))
     tx = Create.generate([b58_pub], [([b58_pub], 1)], metadata=data)
-    tx = tx.sign([sk_b58])
-    assert tx.inputs_valid() is True
+    
+    tx_dict = tx.to_dict()
+    unsinged_tx = Transaction.from_dict( tx_dict )
+    
+    signed_tx = unsinged_tx.sign([sk_b58])
+    assert signed_tx.inputs_valid() is True
 
 
 def test_create_create_transaction_multiple_io(user_output, user2_output, user_pub, user2_pub, asset_definition):
